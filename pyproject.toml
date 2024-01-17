@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "realtime"
+name = "valkyrie"
 version = "0.1.0"
 description = ""
 authors = ["Rogerio Biondi <rogerio.biondi@gmail.com>"]

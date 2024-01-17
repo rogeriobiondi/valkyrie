@@ -4,6 +4,8 @@ import BarChart from "./BarChart";
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
 
+import { Filter } from './Filter';
+
 const options = [
     '<select>', 'ali', 'shopee', 'magalu'
 ];
@@ -34,23 +36,22 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <h1 className="title">Dashboards</h1>
-        <div className="container2">
-          <div>
-            <Dropdown className="combobox" options={options} onChange={this.choice} value={defaultOption} placeholder="<select>" />
+        <h1 className="title">Dashboards</h1>        
+        <Filter measurement="radar"
+                fields={["company"]}
+                options={options} 
+                defaultOption={defaultOption} 
+                choice={this.choice}>
+          <div className="flex-item">
+            <BarChart key={this.state.counter} ref={this.state.ref} width="500" height="400" name="radar_dashboard" filter={this.state.filterCompany} />
+          </div>          
+          <div className="flex-item">
+              <BarChart key={this.state.counter} ref={this.state.ref} width="500" height="400" name="etapa_dashboard"   filter={this.state.filterCompany}/>
           </div>
-          <div className="container">
-            <div className="flex-item">
-              <BarChart key={this.state.counter} ref={this.state.ref} width="500" height="400" name="radar_dashboard" filter={this.state.filterCompany} />
-            </div>
-            <div className="flex-item">
-                <BarChart key={this.state.counter} ref={this.state.ref} width="500" height="400" name="etapa_dashboard"   filter={this.state.filterCompany}/>
-            </div>
-            <div className="flex-item">
-                <BarChart key={this.state.counter} ref={this.state.ref} width="500" height="400" name="company_dashboard" filter={this.state.filterCompany}/>
-            </div> 
+          <div className="flex-item">
+              <BarChart key={this.state.counter} ref={this.state.ref} width="500" height="400" name="company_dashboard" filter={this.state.filterCompany}/>
           </div>
-        </div>
+        </Filter>
       </div>
     );
   }

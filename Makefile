@@ -24,9 +24,9 @@ setup: ## Setup libraries
 api-run: ## Run the API
 	@poetry run uvicorn main:app --reload
 
-.PHONY: worker-run
-worker-run: ## Run the API
-	@poetry run python worker.py
+.PHONY: loader-run
+loader-run: ## Run the Bulk Loader
+	@poetry run python loader.py
 
 .PHONY: dashboard-run
 dashboard-run: ## Run the API
