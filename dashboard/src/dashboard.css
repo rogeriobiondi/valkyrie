@@ -1,0 +1,30 @@
+.container {
+    display: flex;
+}
+
+.container2 {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.title {
+    font-size: 30px;
+    font-weight: bold;
+    padding: 10px;
+    padding-left: 20px;
+}
+
+.combobox {
+    width: 150px;
+    height: 50px;
+    padding-left: 20px;
+  }
+
+.fixed {
+    width: 500px;
+}
+
+.flex-item {
+    flex-grow: 1;
+    padding: 10px;
+}
