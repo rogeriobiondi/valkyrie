@@ -1,8 +1,11 @@
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
+import { useState } from "react";
 
 
-export function Filter({children, options, defaultOption, choice}) {
+export function Filter({measurement, children, options, defaultOption, choice}) {
+
+    // [options, setOptions] = useState([ '<select>', 'ali', 'shopee', 'magalu' ]);
     
     options = [ '<select>', 'ali', 'shopee', 'magalu' ];
     

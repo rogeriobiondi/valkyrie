@@ -37,7 +37,7 @@ class App extends Component {
     return (
       <div className="App">
         <h1 className="title">Dashboards</h1>        
-        <Filter measurement="radar"
+        <Filter name="radar-filter"
                 fields={["company"]}
                 options={options} 
                 defaultOption={defaultOption} 
