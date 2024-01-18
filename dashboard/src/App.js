@@ -4,9 +4,7 @@ const App = () => {
 
   return (
       <div className="App">
-          <DashBoard name="radar_dashboard" 
-                     title="Dashboards" 
-                     filters={["company", "etapa"]}/>
+          <DashBoard name="radar_dashboard" />
       </div>
   );
 }

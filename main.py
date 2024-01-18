@@ -89,6 +89,18 @@ async def domains(dashboard_name: str, domain: str):
             ret.append(row[0])
         return ret
 
+@app.get("/dashboard/{name}")
+async def get_dashboard(name: str):
+    with SessionLocal() as session:
+        # get dashboard data
+        dash = session\
+                .query(dashboard)\
+                .filter(dashboard.columns.name == name)\
+                .one()\
+                ._asdict()
+        logging.debug(dash)
+        return dash
+
 @app.get("/graph/{name}")
 async def graph(name: str, request: Request): 
     params = dict(request.query_params)

@@ -16,7 +16,7 @@ export default function BarChart(props) {
         setLoading(true);
         let calc_url = url + props.name;
         // url encoded props.selected
-        if (props.selected.length !== 0) {
+        if (props.selected && props.selected.length !== 0) {
             let pars = props.selected.join('&');
             calc_url = url + props.name + "?" + pars;            
         } 
@@ -87,13 +87,13 @@ export default function BarChart(props) {
     }, [props]);
 
     if(loading) {
-        return <div>Loading...</div>;
+        return <div className='container'>Loading...</div>;
     }
     if(error) {
-        return <div>{error}</div>;
+        return <div className='container'>{error}</div>;
     } else {
         return (
-            <div>
+            <div className='container'>
                 <ReactECharts 
                             theme="light"
                             key={Date.now()}
@@ -108,6 +108,4 @@ export default function BarChart(props) {
             </div>
         )
     }
-}        
-
-// export default BarChart;
+}
