@@ -3,13 +3,17 @@ import 'react-dropdown/style.css';
 import { useState } from "react";
 
 
-export function Filter({measurement, children, options, defaultOption, choice}) {
+export function Filter({measurement, children, choice}) {
 
-    // [options, setOptions] = useState([ '<select>', 'ali', 'shopee', 'magalu' ]);
-    
-    options = [ '<select>', 'ali', 'shopee', 'magalu' ];
-    
-    defaultOption = options[0];
+    const [options, setOptions] = useState([ '<select>', 'ali', 'shopee', 'magalu' ]);      
+    const defaultOption = options[0];
+
+    // useEffect(() => {
+    //     axios.get("http://localhost:8000/domain?name=" + name)
+    //     .then( (response) => {
+    //         setOptions(response.data.dashboard.config.options);
+    //     });        
+    // }, [name]);
     
     return (
         <div>

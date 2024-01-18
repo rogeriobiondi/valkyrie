@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
 import ReactECharts from 'echarts-for-react';
 import axios from 'axios';
 
@@ -20,7 +20,7 @@ class BarChart extends Component {
      */
     loadData() {
         var calc_url = this.url;
-        if (this.props.filter && this.props.filter != '<select>') {
+        if (this.props.filter && this.props.filter !== '<select>') {
             calc_url = this.url + "?company=" + this.props.filter;
         } else {
             calc_url = this.url;
@@ -85,7 +85,7 @@ class BarChart extends Component {
                     data: this.loaded.data[this.loaded.dashboard.categories].data
                 },
                 series: this.loaded.data.map((e, index) => {
-                    if(index != this.loaded.dashboard.categories) {
+                    if(index !== this.loaded.dashboard.categories) {
                         return {                                            
                             name: e.name,
                             type: "bar",

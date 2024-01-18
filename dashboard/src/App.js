@@ -1,7 +1,6 @@
 import './dashboard.css';
-import { useEffect, useState, useCallback, updateState, useReducer, createRef, Component } from "react";
+import { createRef, Component } from "react";
 import BarChart from "./BarChart";
-import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
 
 import { Filter } from './Filter';
@@ -50,6 +49,9 @@ class App extends Component {
           </div>
           <div className="flex-item">
               <BarChart key={this.state.counter} ref={this.state.ref} width="500" height="400" name="company_dashboard" filter={this.state.filterCompany}/>
+          </div>
+          <div className="flex-item">
+              <BarChart key={this.state.counter} ref={this.state.ref} width="500" height="400" name="looping_dashboard" filter={this.state.filterCompany}/>
           </div>
         </Filter>
       </div>
