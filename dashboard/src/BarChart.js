@@ -1,161 +1,113 @@
-import React, { Component } from 'react';
-import ReactECharts from 'echarts-for-react';
 import axios from 'axios';
+import ReactECharts from 'echarts-for-react';
 
-class BarChart extends Component {
+import { useEffect } from 'react';
+import { useState } from "react";
 
-    url = "http://localhost:8000/graph/" + this.props.name;
+export default function BarChart(props) {
 
-    // initialize state
-    state = {
-        loading: false,
-        option: {},
-        config: {},
-        filter: this.props.filter
-    };
+    const [loading, setLoading] = useState(false);    
+    const [error, setError] = useState(null);
+    const [loaded, setLoaded] = useState({});
+    const [options, setOptions] = useState({});
+    const url = "http://localhost:8000/graph/";
 
-    /**
-     * Loads data from a specified URL.
-     * @returns {Promise<any>} The response data.
-     */
-    loadData() {
-        var calc_url = this.url;
-        if (this.props.filter && this.props.filter !== '<select>') {
-            calc_url = this.url + "?company=" + this.props.filter;
-        } else {
-            calc_url = this.url;
-        }
-        return axios.get(calc_url)
+    useEffect(() => {
+        setLoading(true);
+        let calc_url = url + props.name;
+        // url encoded props.selected
+        if (props.selected.length !== 0) {
+            let pars = props.selected.join('&');
+            calc_url = url + props.name + "?" + pars;            
+        } 
+        console.log('Loading data for', calc_url);
+        axios.get(calc_url)
         .then( (response) => {
-            this.loaded = response.data;
-        });        
-    }
-  
-    componentDidMount(previousProps, previousState) {
-        if (previousState !== this.state || previousProps !== this.props) {
-            this.setState({ loading: true });
-            this.loadData().then((loaded) => {
-                this.setState({
-                    loading: false,
-                    option: this.getOption(),
-                    config: this.getConfig(),
-                    filter: this.props.filter
-                });
-            });
-        }
-    }
-    
-    getConfig() {        
-        if (this.loaded) {
-            return this.loaded.dashboard.config;
-        } else {
-            return {};
-        }
-    }
-
-    getOption() {
-        if (this.loaded) {
-            const option = {
-                title: {
-                    text: this.loaded.dashboard.config.title,
-                    subtext: this.loaded.dashboard.config.subtitle
-                },
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                      // Use axis to trigger tooltip
-                      type: 'shadow' // 'shadow' as default; can also be 'line' or 'shadow'
-                    }
-                },
-                legend: {
-                    orient: 'horizontal',
-                    top: 'bottom'
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '10%',
-                    containLabel: true
-                },
-                xAxis: {
-                    type: 'value'
-                },
-                yAxis: {
-                    type: 'category',
-                    data: this.loaded.data[this.loaded.dashboard.categories].data
-                },
-                series: this.loaded.data.map((e, index) => {
-                    if(index !== this.loaded.dashboard.categories) {
-                        return {                                            
-                            name: e.name,
-                            type: "bar",
-                            stack: 'total',
-                            barWidth: "60%",
-                            label: {
-                                show: true
-                            },
-                            emphasis: {
-                                focus: 'series'
-                            },
-                            data: e.data
-                        }
-                    }
-                })
+            console.log('Response', response.data);         
+            var opts = {}   
+            opts.title = {
+                text: response.data.dashboard.config.title,
+                subtext: response.data.dashboard.config.subtitle
+            }
+            opts.tooltip = {
+                trigger: 'axis',
+                axisPointer: {
+                  // Use axis to trigger tooltip
+                  type: 'shadow' // 'shadow' as default; can also be 'line' or 'shadow'
+                }
+            }
+            opts.legend = {
+                orient: 'horizontal',
+                top: 'bottom'
             };
-            return option;
-        } else {
-            return {
-                color: ["#3398DB"],
-                title: {
-                    text: 'Title'
-                },
-                tooltip: {
-                    trigger: "axis",
-                    axisPointer: {
-                        type: "shadow"
-                    }
-                },
-                grid: {},
-                xAxis: [{
-                    type: "category",
-                    data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-                }],
-                yAxis: [{
-                    type: "value"
-                }],
-                series: [{
-                    name: "nome",
-                    type: "bar",
-                    barWidth: "60%",
-                    data: [10, 52, 200, 334, 390, 330, 220]
-                }]            
+            opts.grid = {
+                left: '3%',
+                right: '4%',
+                bottom: '10%',
+                containLabel: true
             };
-        }
-    }
+            opts.xAxis = {
+                type: 'value'
+            };
+            opts.yAxis = {
+                type: 'category',
+                data: response.data.data[0].data
+            };
+            opts.series = [];
+            for (var i = 0; i < response.data.data.length; i++) {
+                if (i > 0) {
+                    opts.series.push({                                            
+                        name: response.data.data[i].name,
+                        type: "bar",
+                        stack: 'total',
+                        barWidth: "60%",
+                        label: {
+                            show: true
+                        },
+                        emphasis: {
+                            focus: 'series'
+                        },
+                        data: response.data.data[i].data
+                    });
+                }
+            }
+            setError(null);
+            setOptions(opts);            
+            setLoading(false);              
+            console.log('opts', opts);          
+        })
+        .catch((error) => {
+            setLoading(false);
+            if (error.response.status === 404) {
+                setError("No data found for this dashboard.");                
+            } else {            
+                setError(error.message);
+            }
+        });
+    }, [props]);
 
-    constructor(props) {
-        super(props);            
+    if(loading) {
+        return <div>Loading...</div>;
     }
-
-    render() {
+    if(error) {
+        return <div>{error}</div>;
+    } else {
         return (
-            <div>                
-                <div>
-                    <ReactECharts 
-                        theme="light"
-                        key={Date.now()}
-                        style={
-                            {
-                                width: this.state.config.width ? this.state.config.width : 500, 
-                                height: this.state.config.height ? this.state.config.height : 400
+            <div>
+                <ReactECharts 
+                            theme="light"
+                            key={Date.now()}
+                            style={
+                                {
+                                    width: 500, 
+                                    height: 400
+                                }
                             }
-                        }
-                        option={this.state.option} 
-                    />                
-                </div>
+                            option={options} 
+                        />
             </div>
         )
     }
-}
+}        
 
-export default BarChart;
+// export default BarChart;

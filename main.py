@@ -70,6 +70,25 @@ def config(config: Config):
         "result": "sucess"
     }
 
+@app.get("/domains/{dashboard_name}/{domain}")
+async def domains(dashboard_name: str, domain: str):
+    with SessionLocal() as session:
+        dash = session\
+                .query(dashboard)\
+                .filter(dashboard.columns.name == dashboard_name)\
+                .one()._asdict()
+        ds = session.query(datasource).filter(datasource.columns.name == dash['datasource']).one()._asdict()        
+    print(ds)
+    # query dashboard table    
+    with engine.connect() as conn:
+        sql = f"select distinct " + domain + " as values from " + ds["query"]["measurement"] + " order by values"
+        sql = text(sql)
+        rs = conn.execute(sql)
+        ret = []
+        for row in rs:
+            ret.append(row[0])
+        return ret
+
 @app.get("/graph/{name}")
 async def graph(name: str, request: Request): 
     params = dict(request.query_params)
@@ -158,6 +177,7 @@ async def get_dashboard(dash: Dashboard):
 @app.post("/pivot")
 async def get_pivot(query: Query, request: Request):
     data = await get_data(query, request)
+    logging.debug("pivot", data)
     # if no data found, return http 404 not found    
     if len(data) == 0:
         # return http 404
@@ -195,7 +215,7 @@ async def get_data(query: Query, request: Request):
                     if par not in params:
                         continue
                     filter.value = params[filter.value[1:]]
-                if filter.op == 'eq':
+                if filter.op == 'eq':                    
                     sql += f"and {filter.field} = '{filter.value}' "
                 elif filter.op == 'gt':
                     sql += f"and {filter.field} > {filter.value} "
@@ -217,6 +237,7 @@ async def get_data(query: Query, request: Request):
             sql = sql[:-1]
         # logging.debug(sql)
         sql = text(sql)
+        logging.debug(sql)
         rs = conn.execute(sql)
         ret = []
         for row in rs:

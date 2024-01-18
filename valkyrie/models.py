@@ -30,6 +30,7 @@ class Dashboard(BaseModel):
     name: str
     datasource: str
     categories: int
+    filters: list[str] | None = None
     config: Optional[dict] = { "width": 500, "height": 400 }
     
 class Attribute(BaseModel):
