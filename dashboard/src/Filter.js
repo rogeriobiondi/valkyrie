@@ -49,7 +49,7 @@ const Filter = (props) => {
   
     return (
         <div>
-            <div>
+            <div className="filter_container">
             { 
                 (options !== undefined && options.length > 0) &&    
                      options.map( (option, i) => {
@@ -57,11 +57,14 @@ const Filter = (props) => {
                         let data = option.data;                        
                         return (
                             <div key={i}>
-                                <Dropdown 
-                                    className='dropdown' 
-                                    options={data} 
-                                    onChange={(e) => choice(dimension, e)}
-                                />
+                                <div className='filter_caption'>{dimension}</div>
+                                <div>
+                                    <Dropdown 
+                                        className='dropdown' 
+                                        options={data} 
+                                        onChange={(e) => choice(dimension, e)}
+                                    />
+                                </div>
                             </div>
                         );
                     })

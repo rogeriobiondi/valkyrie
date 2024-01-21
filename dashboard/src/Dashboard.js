@@ -18,7 +18,6 @@ const Dashboard = ({name, config}) => {
     });       
     
     useEffect(() => {
-        console.log("config", config);
         const url = config.serverUrl + "/dashboards/";
         setLoading(true);
         let calc_url = url + name;
