@@ -102,7 +102,8 @@ curl --location 'localhost:8000/datasource' \
             { "expression": "sum(atrasado)", "alias": "atrasado" }
         ],
         "filters": [
-            { "field": "company", "op": "eq", "value": "$company" }
+            { "field": "company", "op": "eq", "value": "$company" },
+            { "field": "company", "op": "eq", "value": "$etapa" }
         ],
         "group": ["etapa"],
         "order": [ 
@@ -123,10 +124,13 @@ curl --location 'localhost:8000/dashboard' \
 --data '{
     "name": "radar_dashboard",
     "datasource": "radar_datasource",
-    "categories": 0,
+    "categories": 0,    
     "config": {
+        "type": "barchart-horizontal",
         "width": 500,
-        "height": 400
+        "height": 400,
+        "title": "Dashboard",
+        "filters": ["company", "etapa"]
     }
 }
 '
@@ -138,9 +142,18 @@ curl --location 'localhost:8000/dashboard' \
 - Add the `radar_dashboard` component:
 
 ```
-<div className="flex-item">
-    <BarChart key={this.state.counter} ref={this.state.ref} width="500" height="400" name="radar_dashboard" filter={this.state.filterCompany} />
-</div>
+import DashBoard from "./Dashboard";
+
+const App = () => {
+
+  return (
+      <div className="App">
+          <DashBoard name="radar_dashboard" />
+      </div>
+  );
+}
+
+export default App;
 ```
 
 ## Testing the application

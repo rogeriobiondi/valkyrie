@@ -15,20 +15,43 @@ metadata.bind = engine
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine) 
 Base = declarative_base()
 
+measurement = Table(
+    "valkyrie_measurements",
+    metadata,
+    Column("name", String, primary_key=True, index=True),
+    Column("config", JSONB)
+)
+
 datasource = Table(
-    "datasources",
+    "valkyrie_datasources",
     metadata,
     Column("name", String, primary_key=True, index=True),
     Column("query", JSONB)
 )
 
-dashboard = Table(
-    "dashboards",
+chart = Table(
+    "valkyrie_charts",
     metadata,
     Column("name", String, primary_key=True, index=True),
     Column("datasource", String),
     Column("categories", Integer),
     Column("config", JSONB)
+)
+
+dashboard = Table(
+    "valkyrie_dashboards",
+    metadata,
+    Column("name", String, primary_key=True, index=True),
+    Column("config", JSONB)
+)
+
+filter = Table(
+    "valkyrie_filters",
+    metadata,
+    Column("name", String, primary_key=True, index=True),
+    Column("datasource", String),
+    Column("dimension", String),
+    Column("order", String)  
 )
 
 def execute_dml(sql: str):

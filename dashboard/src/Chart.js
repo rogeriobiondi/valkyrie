@@ -1,41 +1,50 @@
+import { useEffect, useState } from 'react';
+
 import axios from 'axios';
+
 import ReactECharts from 'echarts-for-react';
 
-import { useEffect } from 'react';
-import { useState } from "react";
 
-export default function BarChart(props) {
+export default function Chart({name, selected, config}) {
 
     const [loading, setLoading] = useState(false);    
-    const [error, setError] = useState(null);
-    const [loaded, setLoaded] = useState({});
+    const [error, setError] = useState(null);   
     const [options, setOptions] = useState({});
-    const url = "http://localhost:8000/graph/";
-
+    const [graph, setGraph] = useState({
+        chart: {
+            config: {
+                title: "",
+                subtitle: "",
+                width: 500,
+                height: 400,
+                theme: "light"
+            }
+        }
+    });
+    
     useEffect(() => {
-        setLoading(true);
-        let calc_url = url + props.name;
+        setLoading(true);        
+        const url = config.serverUrl + "/graph/";
+        let calc_url = url + name;
         // url encoded props.selected
-        if (props.selected && props.selected.length !== 0) {
-            let pars = props.selected.join('&');
-            calc_url = url + props.name + "?" + pars;            
+        if (selected && selected.length !== 0) {
+            let pars = selected.join('&');
+            calc_url = url + name + "?" + pars;            
         } 
-        console.log('Loading data for', calc_url);
-        axios.get(calc_url)
-        .then( (response) => {
-            console.log('Response', response.data);         
+        axios.get(calc_url).then( (response) => {
+            let chart = response.data.chart;
             var opts = {}   
             opts.title = {
-                text: response.data.dashboard.config.title,
-                subtext: response.data.dashboard.config.subtitle
+                text: chart.config.title,
+                subtext: chart.config.subtitle
             }
             opts.tooltip = {
                 trigger: 'axis',
                 axisPointer: {
-                  // Use axis to trigger tooltip
-                  type: 'shadow' // 'shadow' as default; can also be 'line' or 'shadow'
+                    // Use axis to trigger tooltip
+                    type: 'shadow' // 'shadow' as default; can also be 'line' or 'shadow'
                 }
-            }
+            }            
             opts.legend = {
                 orient: 'horizontal',
                 top: 'bottom'
@@ -71,12 +80,12 @@ export default function BarChart(props) {
                     });
                 }
             }
-            setError(null);
+            setGraph(response.data);
             setOptions(opts);            
+            setError(null);
             setLoading(false);              
-            console.log('opts', opts);          
         })
-        .catch((error) => {
+       .catch((error) => {
             setLoading(false);
             if (error.response.status === 404) {
                 setError("No data found for this dashboard.");                
@@ -84,28 +93,19 @@ export default function BarChart(props) {
                 setError(error.message);
             }
         });
-    }, [props]);
+    }, [name, selected, config]);
 
     if(loading) {
         return <div className='container'>Loading...</div>;
     }
+
     if(error) {
         return <div className='container'>{error}</div>;
-    } else {
-        return (
-            <div className='container'>
-                <ReactECharts 
-                            theme="light"
-                            key={Date.now()}
-                            style={
-                                {
-                                    width: 500, 
-                                    height: 400
-                                }
-                            }
-                            option={options} 
-                        />
-            </div>
-        )
     }
+    
+    return (
+            <div key={Date.now()} className='container'>
+                <ReactECharts theme={graph.chart.config.theme} style={{ width: graph.chart.config.width, height: graph.chart.config.height }} option={options} />
+            </div>
+    )
 }

@@ -1,34 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import BarChart from "./BarChart";
+import Chart from "./Chart";
 import Filter from './Filter';
 
 import axios from 'axios';
 
 
-import './dashboard.css';
+import './Dashboard.css';
 
-const Dashboard = ({name}) => {  
+const Dashboard = ({name, config}) => {  
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [dashboard, setDashboard] = useState({});
-    const [title, setTitle] = useState('');
-    const [filters, setFilters] = useState([]);
-    const [type, setType] = useState('barchart-horizontal');
-        
-    const url = "http://localhost:8000/dashboard/";
-
+    const [dashboard, setDashboard] = useState({
+        config: {
+            title: '',
+            charts: []
+        }
+    });       
+    
     useEffect(() => {
+        console.log("config", config);
+        const url = config.serverUrl + "/dashboards/";
         setLoading(true);
         let calc_url = url + name;
         axios.get(calc_url)
         .then( (response) => {            
-            console.log('Response', response.data);  
-            setDashboard(response.data);
-            setTitle(response.data.config.title);
-            setFilters(response.data.config.filters);
-            setType(response.data.config.type);            
             setError(null);
             setLoading(false);              
+            setDashboard(response.data);
         })
         .catch((error) => {
             setLoading(false);
@@ -43,16 +41,23 @@ const Dashboard = ({name}) => {
     if (loading) {
         return <div>Loading...</div>;
     }
+
     if (error) {
         return <div>{error}</div>;
     }
+
     return (
         <div>
-            <h1 className="title">{title}</h1>        
-            <Filter name={name} filters={filters}>
-                <BarChart name={name} filters={filters}/>
-                {/* {(type === 'barchart-horizontal') ? (<div><BarChart name={name} filters={filters}/></div>) : (<div></div>) } */}
-            </Filter>       
+            <h1 className="title">{(dashboard.config.title) ? (dashboard.config.title) : ("dashboard.config.title")}</h1>
+            <div>
+                <Filter dashboard={dashboard} config={config}>                    
+                    {
+                        dashboard.config.charts.map((chart, i) => {
+                            return (<Chart key={i} name={chart} config={config}/>);
+                        })
+                    }                    
+                </Filter>
+            </div>
         </div>
     );
 }
