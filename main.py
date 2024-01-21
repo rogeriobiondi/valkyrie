@@ -12,10 +12,10 @@ import sqlalchemy
 import logging
 import os
 from sqlalchemy import exc
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB 
 
-from valkyrie.database import engine, SessionLocal, datasource, dashboard, execute_dml
-from valkyrie.models import Query, DataSource, Dashboard, Config, Attribute, FilterOp, OrderOp, SelectField
+from valkyrie.database import engine, SessionLocal, measurement, datasource, chart, dashboard, filter, execute_dml
+from valkyrie.models import Query, DataSource, Chart, Measurement, Dashboard, Filter
 from valkyrie.kafka import producer
 from valkyrie.ws import html, broadcast
 
@@ -46,51 +46,41 @@ app.add_middleware(
 #     await broadcast(websocket, client_id)
 
 
-@app.delete("/measurement/{measurement}")
-def delete(measurement: str):
-    sql = f"DROP TABLE IF EXISTS {measurement};"
-    execute_dml(sql) 
-    return {
-        "result": "sucess"
-    }
+@app.delete("/measurements/{name}")
+def delete_measurement(name: str):
+    # Remove a tabela de métrica
+    sql = f"DROP TABLE IF EXISTS {name};"
+    execute_dml(sql)
+    # Remove os dados da tabela measurement
+    with SessionLocal() as session:        
+        delete_stmt = measurement.delete().where(measurement.columns.name == name)
+        session.execute(delete_stmt)
+        session.commit()
+        return {
+            "result": "sucess"
+        }
 
-@app.post("/measurement")
-def config(config: Config):
-    sql = f"CREATE TABLE IF NOT EXISTS {config.measurement} ( "
-    for dim in config.dimensions:
+@app.post("/measurements")
+def create_measurement(o: Measurement):
+    # Cria a tabela de métrica
+    sql = f"CREATE TABLE IF NOT EXISTS {o.name} ( "
+    for dim in o.dimensions:
         sql += f"{dim.name} {dim.type}, "
-    for field in config.fields:
+    for field in o.fields:
         sql += f"{field.name} {field.type}, "
     sql += "timestamp timestamp );\n"
-    sql += f"SELECT create_hypertable('{config.measurement}', 'timestamp');\n"
-    for dim in config.dimensions:
-        sql += f"CREATE INDEX IF NOT EXISTS {config.measurement}_dim_{dim.name}_idx ON {config.measurement} ({dim.name});\n"
+    sql += f"SELECT create_hypertable('{o.name}', 'timestamp');\n"
+    for dim in o.dimensions:
+        sql += f"CREATE INDEX IF NOT EXISTS {o.name}_dim_{dim.name}_idx ON {o.name} ({dim.name});\n"
     execute_dml(sql)
-    return {
-        "result": "sucess"
-    }
-
-@app.get("/graph/{name}")
-async def graph(name: str, request: Request): 
-    params = dict(request.query_params)
-    logging.debug(params)
-    # query dashboard table    
-    with SessionLocal() as session:
-        # get dashboard data
-        dash = session.query(dashboard).filter(dashboard.columns.name == name).one()._asdict()
-        ds = session.query(datasource).filter(datasource.columns.name == dash['datasource']).one()._asdict()        
-        logging.debug(ds)
-        pyds = DataSource(**ds)
-        data = await get_pivot(pyds.query, request)
-    return {
-        "dashboard": dash,
-        "datasource": ds,
-        "data": data
-    }
-
-###
-### Bulk Load API
-###
+    # Guarda dados da métrica
+    with SessionLocal() as session:        
+        insert_stmt = insert(measurement)\
+            .values(name = o.name, config = o.dict())
+        session.execute(insert_stmt)
+        session.commit()
+        return o
+    
 @app.post("/bulk")
 async def bulk(request: Request):
     # convert fastapi request.body() to string
@@ -105,14 +95,11 @@ async def bulk(request: Request):
         "lines": len(lines)
     }
 
-###
-### Data API
-###
-@app.post("/datasource")
-async def get_datasource(ds: DataSource, request: Request):
+@app.post("/datasources")
+async def create_datasource(ds: DataSource, request: Request):
     logging.debug(ds)
     # testar o datasource
-    dados = await get_pivot(query = ds.query, request = request)
+    dados = await pivot_data(query = ds.query, request = request)
     if dados:
         # check if the datasource already exists
         with SessionLocal() as session:        
@@ -128,47 +115,215 @@ async def get_datasource(ds: DataSource, request: Request):
                 session.execute(insert_stmt)
                 session.commit()
                 return dados
+            
+@app.get("/dashboards/{name}")
+async def get_dashboard(name: str):
+    with SessionLocal() as session:
+        # get dashboard data
+        o = session.query(dashboard).filter(dashboard.columns.name == name).one()._asdict()
+        logging.debug(o)
+        return o
+    
+@app.post("/filters")
+async def create_filter(o: Filter):
+    with SessionLocal() as session: 
+        # check if the filter already exists
+        exists = session.query(filter)\
+                        .filter(filter.columns.name == o.name)\
+                        .one_or_none()
+        if exists != None:
+            # update filter
+            update_stmt = filter.update()\
+                .where(filter.columns.name == o.name)\
+                .values(datasource = o.datasource, dimension = o.dimension, order = o.order)
+            session.execute(update_stmt)
+            session.commit()
+            return o
+        else:
+            insert_stmt = insert(filter)\
+                    .values(name = o.name, datasource = o.datasource, dimension = o.dimension, order = o.order)
+            session.execute(insert_stmt)
+            session.commit()
+            return o
 
-@app.post("/dashboard")
-async def get_dashboard(dash: Dashboard):
+@app.get("/filters/{name}")
+async def get_filter(name: str):
+    with SessionLocal() as session:
+        # get filter data
+        o = session.query(filter)\
+            .filter(filter.columns.name == name)\
+            .one()\
+            ._asdict()
+        logging.debug(o)
+        return o
+    
+@app.delete("/filters/{name}")
+async def delete_filter(name: str):
+    with SessionLocal() as session:
+        # get filter data
+        try:
+            o = session.query(filter)\
+                .filter(filter.columns.name == name)\
+                .one()\
+                ._asdict()
+            logging.debug(o)
+            delete_stmt = filter.delete().where(filter.columns.name == name)
+            session.execute(delete_stmt)
+            session.commit()
+            # return 200 OK
+            return {
+                "result": "sucess"
+            }
+        except sqlalchemy.exc.NoResultFound:
+            raise HTTPException(status_code = 404, detail = f"Filter '{name}' not found")
+        
+@app.get("/filters/data/{name}")
+async def domains(name: str):
+    with SessionLocal() as session:
+        o = session\
+                .query(filter)\
+                .filter(filter.columns.name == name)\
+                .one()._asdict()
+        ds = session.query(datasource).filter(datasource.columns.name == o['datasource']).one()._asdict()
+    # query dashboard table    
+    with engine.connect() as conn:
+        sql = f"select distinct " + o["dimension"] + " as values from " + ds["query"]["measurement"] + " order by values " + o["order"]
+        sql = text(sql)
+        rs = conn.execute(sql)
+        ret = []
+        for row in rs:
+            ret.append(row[0])
+
+        return {
+            "dimension": o["dimension"],
+            "data": ret
+        }
+
+@app.post("/charts")
+async def post_chart(o: Chart):
     with SessionLocal() as session: 
         # check if the dashboard already exists
-        dash_exists = session.query(dashboard).filter(dashboard.columns.name == dash.name).one_or_none()
-        if dash_exists != None:
+        chart_exists = session.query(chart).filter(chart.columns.name == o.name).one_or_none()
+        if chart_exists != None:
             # update dashboard
-            update_stmt = dashboard.update().where(dashboard.columns.name == dash.name).values(
-                datasource = dash.datasource, 
-                categories = dash.categories,
-                config = dash.config
+            update_stmt = chart.update().where(chart.columns.name == o.name).values(
+                datasource = o.datasource, 
+                categories = o.categories,
+                config = o.config
             )
             session.execute(update_stmt)
             session.commit()
-            return dash
+            return o
         else:
-            insert_stmt = insert(dashboard).values(
-                name = dash.name, 
-                datasource = dash.datasource, 
-                categories = dash.categories,
-                config = dash.config
+            insert_stmt = insert(chart).values(
+                name = o.name, 
+                datasource = o.datasource, 
+                categories = o.categories,
+                config = o.config
             )        
             session.execute(insert_stmt)
             session.commit()
-            return dash
+            return o
+
+@app.get("/charts/{name}")
+async def get_chart(name: str):
+    with SessionLocal() as session:
+        # get dashboard data
+        o = session\
+                .query(chart)\
+                .filter(chart.columns.name == name)\
+                .one()\
+                ._asdict()
+        logging.debug(o)
+        return o
+    
+@app.delete("/charts/{name}")
+async def delete_chart(name: str):
+    with SessionLocal() as session:
+        # get dashboard data
+        try:
+            o = session\
+                    .query(chart)\
+                    .filter(chart.columns.name == name)\
+                    .one()\
+                    ._asdict()
+            logging.debug(o)
+            delete_stmt = chart.delete().where(chart.columns.name == name)
+            session.execute(delete_stmt)
+            session.commit()
+            # return 200 OK
+            return {
+                "result": "sucess"
+            }
+        except sqlalchemy.exc.NoResultFound:
+            raise HTTPException(status_code = 404, detail = f"Chart '{name}' not found")
+
+@app.post("/dashboards")
+async def create_dashboard(o: Dashboard):
+    with SessionLocal() as session: 
+        # check if the dashboard already exists
+        exists = session.query(dashboard)\
+                                    .filter(dashboard.columns.name == o.name)\
+                                    .one_or_none()
+        if exists != None:
+            # update dashboard
+            update_stmt = dashboard.update()\
+                .where(dashboard.columns.name == o.name)\
+                .values(config = o.config.dict())
+            session.execute(update_stmt)
+            session.commit()
+            return o
+        else:
+            insert_stmt = insert(dashboard)\
+                                .values(name = o.name, config = o.config.dict())
+            session.execute(insert_stmt)
+            session.commit()
+            return o
+    
+
+
+
+
+
+@app.get("/graph/{name}")
+async def graph(name: str, request: Request): 
+    params = dict(request.query_params)
+    logging.debug(params)
+    
+    # query dashboard table    
+    with SessionLocal() as session:
+        # get dashboard data
+        o = session.query(chart)\
+            .filter(chart.columns.name == name)\
+            .one()\
+            ._asdict()
+        ds = session.query(datasource)\
+            .filter(datasource.columns.name == o['datasource'])\
+            .one()\
+            ._asdict()        
+        logging.debug(ds)
+        pyds = DataSource(**ds)
+        pivoted_data = await pivot_data(pyds.query, request)
+    return {
+        "chart": o,
+        "datasource": ds,
+        "data": pivoted_data
+    }
 
 @app.post("/pivot")
-async def get_pivot(query: Query, request: Request):
+async def pivot_data(query: Query, request: Request):
     data = await get_data(query, request)
     # if no data found, return http 404 not found    
     if len(data) == 0:
         # return http 404
         raise HTTPException(status_code = 404, detail = "No data found")
     # pivot data
-    pivot_data = [list(r) for r in zip(*data[::-1])]
+    pivoted_data = [list(r) for r in zip(*data[::-1])]
     return_data = []
     for idx, serie in enumerate(query.fields):
         return_data.append({
             "name": serie.alias,
-            "data": pivot_data[idx]
+            "data": pivoted_data[idx]
         })
     return return_data
 
@@ -195,7 +350,7 @@ async def get_data(query: Query, request: Request):
                     if par not in params:
                         continue
                     filter.value = params[filter.value[1:]]
-                if filter.op == 'eq':
+                if filter.op == 'eq':                    
                     sql += f"and {filter.field} = '{filter.value}' "
                 elif filter.op == 'gt':
                     sql += f"and {filter.field} > {filter.value} "
@@ -217,6 +372,7 @@ async def get_data(query: Query, request: Request):
             sql = sql[:-1]
         # logging.debug(sql)
         sql = text(sql)
+        logging.debug(sql)
         rs = conn.execute(sql)
         ret = []
         for row in rs:

@@ -1,24 +1,86 @@
+import axios from 'axios';
+import { useEffect } from 'react';
+import { useState } from "react";
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
-import { useState } from "react";
+import React from 'react';
 
+const Filter = (props) => {
+    
+    const [options, setOptions] = useState([]);
+    const [selected, setSelected] = useState([]);
+    const [key, setKey] = useState(0);
+    
+    const [, updateState] = React.useState();
+    const forceUpdate = React.useCallback(() => updateState({}), []);
+    
+    useEffect(() => {
+        if (props.dashboard.config.filters) {
+            // Wait all map promises to be resolved
+            // Map each filter to a promise
+            const promises = props.dashboard.config.filters.map((filter, i) => {
+                let url = props.config.serverUrl + "/filters/data/" + filter;
+                return axios.get(url).then((response) => response.data);
+            });
+            // Wait all promises to be resolved
+            Promise.all(promises).then((results) => {
+                for(var i = 0; i < results.length; i++) {
+                    results[i].data.unshift('[ALL]');
+                }
+                setOptions(results);
+            });
+        }        
+        
+    }, [props]);
 
-export function Filter({measurement, children, options, defaultOption, choice}) {
-
-    // [options, setOptions] = useState([ '<select>', 'ali', 'shopee', 'magalu' ]);
-    
-    options = [ '<select>', 'ali', 'shopee', 'magalu' ];
-    
-    defaultOption = options[0];
-    
+    const choice = (filter, e) => {
+        var selecionado = selected        
+        for (var i = 0; i < selecionado.length; i++) {
+            if (selecionado[i].startsWith(filter)) {
+                selecionado.splice(i, 1);
+            }
+        }
+        if(e.value !== '[ALL]') {
+            selecionado.push(`${filter}=${e.value}`);
+        }
+        setSelected(selecionado);
+        setKey(key + 1);
+    };
+  
     return (
         <div>
-            <div>
-                <Dropdown className="combobox" options={options} onChange={choice} value={defaultOption} placeholder="<select>" />
+            <div className="filter_container">
+            { 
+                (options !== undefined && options.length > 0) &&    
+                     options.map( (option, i) => {
+                        let dimension = option.dimension;
+                        let data = option.data;                        
+                        return (
+                            <div key={i}>
+                                <div className='filter_caption'>{dimension}</div>
+                                <div>
+                                    <Dropdown 
+                                        className='dropdown' 
+                                        options={data} 
+                                        onChange={(e) => choice(dimension, e)}
+                                    />
+                                </div>
+                            </div>
+                        );
+                    })
+            }
             </div>
-            <div className="container">
-                {children}
+            <div className="container" key={Date.now()}>
+            {
+                (React.Children.map(props.children, (child) => {
+                    if (React.isValidElement(child)) {
+                            return React.cloneElement(child, { selected: selected });
+                    };
+                }))
+            }                  
             </div>
         </div>
-    )
+    );
 }
+
+export default Filter;

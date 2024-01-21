@@ -26,17 +26,32 @@ class DataSource(BaseModel):
     name: str
     query: Query
 
-class Dashboard(BaseModel):
+class Chart(BaseModel):
     name: str
     datasource: str
     categories: int
     config: Optional[dict] = { "width": 500, "height": 400 }
-    
+
+class DashboardConfig(BaseModel):
+    title: str
+    filters: list[str] | None = None
+    charts: list[str] | None = None
+
+class Dashboard(BaseModel):
+    name: str
+    config: DashboardConfig
+
+class Filter(BaseModel):
+    name: str    
+    datasource: str
+    dimension: str
+    order: str | None = "asc"
+
 class Attribute(BaseModel):
     name: str
     type: Literal["varchar", "float", "integer", "bool"]
 
-class Config(BaseModel):
-    measurement: str
+class Measurement(BaseModel):
+    name: str
     dimensions: list[Attribute]
     fields: list[Attribute]
