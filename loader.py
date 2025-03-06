@@ -1,12 +1,15 @@
-# Consume messages from kafka (confluent kafka library)
+import os
+import time
+import logging
+
 from confluent_kafka import Consumer
 from confluent_kafka import KafkaException
 from valkyrie.database import engine, Session, SessionLocal, execute_sql
-import socket
-import time
 from sqlalchemy.exc import SQLAlchemyError
 from valkyrie.kafka import consumer
 
+# Read logging level from environment variable
+logging.basicConfig(level=os.environ.get("LOGLEVEL", "DEBUG"))
 
 def assignment_callback(consumer, partitions):
     """
@@ -33,11 +36,14 @@ def process_line(line: str) -> dict:
         A dictionary containing the decoded data.
     """
     try:
-        print(line)
         line = line.replace("\\ ", "%20")
+        logging.debug(f"Processing line: {line}")
         measurement = line[0: line.index(",")]
+        logging.debug(f"Measurement: {measurement}")
         tagset = line[line.index(",") + 1: line.index(" ")]
+        logging.debug(f"Tagset: {tagset}")
         fieldset = line[line.index(" ") + 1: ].split(" ")[0]
+        logging.debug(f"Fieldset: {fieldset}")
         try:
             timestamp = line[line.index(" ") + 1: ].split(" ")[1]
         except IndexError:
@@ -53,6 +59,12 @@ def process_line(line: str) -> dict:
         components_fieldset = fieldset.split(",")
         for component in components_fieldset:
             component = component.split("=")
+            if len(component) < 2:
+                # Throw a ValueError Exception
+                raise ValueError(f"Invalid fieldset: {fieldset}")
+            logging.debug(f"loader.py: {component}")
+            logging.debug(f"loader.py: {component[0]}")
+            logging.debug(f"loader.py: {component[1]}")
             fieldsetdict.append({ "key": component[0], "value": component[1] })      
         data = {
             "measurement": measurement,
@@ -63,7 +75,7 @@ def process_line(line: str) -> dict:
         }
         return data
     except ValueError as error:
-        print(error)
+        logging.error(error)
         return None
 
 ### Ingest Data
@@ -75,6 +87,9 @@ def data_ingestion(session: Session, data: dict) -> None:
         session: The database session.
         data: The data to be ingested.
     """
+    if data is None or not 'measurement' in data:
+        raise ValueError("Invalid data")
+        return None
     sql = f"insert into {data['measurement']} ( "
     for dim in data['dimensions']:
         sql += f"{dim['key']}, "
@@ -92,34 +107,38 @@ def data_ingestion(session: Session, data: dict) -> None:
         else:
             sql += f"{field['value']}, "
     sql += f" to_timestamp({data['timestamp']}) );"
-    print(sql)
+    logging.debug(sql)
     execute_sql(session, sql)
     return sql
-
+    
 if __name__ == '__main__':
     # consumer = Consumer(config)
-    consumer.subscribe(['radar-insights'], on_assign=assignment_callback)
+    consumer.subscribe(['valkyrie'], on_assign=assignment_callback)
     try:
         while True:
             event = consumer.poll(1.0)
             if event is None:
                 continue
             if event.error():
+                logging.error(event)
                 raise KafkaException(event.error())
             else:
                 val = event.value().decode('utf8')
                 partition = event.partition()
-                print(f'Received: {val} from partition {partition}    ')
+                logging.debug(f'Received from partition {partition}: {val}')
                 lines = val.split("\n")
+                logging.debug(f"lines: {lines}")
                 with SessionLocal() as session:
                     try:
                         for line in lines:
                             components = process_line(line)
+                            logging.debug(components)
                             data_ingestion(session, components)
                         session.commit()
                     except SQLAlchemyError as e:
                         session.rollback()
                         error = str(e.__dict__['orig'])
+                        logging.error(error)
                         print(error)
                     else:
                         session.commit()

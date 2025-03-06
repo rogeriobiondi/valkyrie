@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { useEffect, useState } from 'react';
 
 import axios from 'axios';
@@ -36,7 +38,13 @@ export default function Chart({name, selected, config}) {
             var opts = {}   
             opts.title = {
                 text: chart.config.title,
-                subtext: chart.config.subtitle
+                subtext: chart.config.subtitle,
+                textStyle: {
+                    fontFamily: 'Arial Rounded MT Bold'
+                },
+                subtextStyle: {
+                    fontFamily: 'Arial Rounded MT Bold'
+                }
             }
             opts.tooltip = {
                 trigger: 'axis',
@@ -47,7 +55,10 @@ export default function Chart({name, selected, config}) {
             }            
             opts.legend = {
                 orient: 'horizontal',
-                top: 'bottom'
+                top: 'bottom',
+                textStyle: {
+                    fontFamily: 'Arial Rounded MT Bold'
+                }
             };
             opts.grid = {
                 left: '3%',
@@ -56,11 +67,17 @@ export default function Chart({name, selected, config}) {
                 containLabel: true
             };
             opts.xAxis = {
-                type: 'value'
+                type: 'value',
+                axisLabel: {
+                    fontFamily: 'Arial Rounded MT Bold'
+                }
             };
             opts.yAxis = {
                 type: 'category',
-                data: response.data.data[0].data
+                data: response.data.data[0].data,
+                axisLabel: {
+                    fontFamily: 'Arial Rounded MT Bold'
+                }
             };
             opts.series = [];
             for (var i = 0; i < response.data.data.length; i++) {
@@ -71,7 +88,8 @@ export default function Chart({name, selected, config}) {
                         stack: 'total',
                         barWidth: "60%",
                         label: {
-                            show: true
+                            show: true,
+                            fontFamily: 'Arial Rounded MT Bold'
                         },
                         emphasis: {
                             focus: 'series'

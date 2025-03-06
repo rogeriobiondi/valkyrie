@@ -12,16 +12,21 @@ endef
 help: ## Command help
 	@egrep -h '\s##\s' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
+.PHONY: install
+install: ## Install
+	@poetry install
+	@cd dashboard;npm install
+
 .PHONY: infra-start
 infra-start: ## Start infra
-	@docker-compose up
+	@docker compose up
 
 .PHONY: setup
 setup: ## Setup libraries
 	@poetry install
 
-.PHONY: api-run
-api-run: ## Run the API
+.PHONY: server-run
+server-run: ## Run the API Server
 	@poetry run uvicorn main:app --reload
 
 .PHONY: loader-run
@@ -30,8 +35,8 @@ loader-run: ## Run the Bulk Loader
 
 .PHONY: dashboard-run
 dashboard-run: ## Run the API
-	@cd dashboard;poetry run npm start
+	@export NODE_OPTIONS=--openssl-legacy-provider;cd dashboard;poetry run npm start
 
 .PHONY: infra-stop
 infra-stop: ## Stop infra
-	@docker-compose down
+	@docker compose down

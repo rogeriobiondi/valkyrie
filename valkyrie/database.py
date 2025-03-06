@@ -68,7 +68,7 @@ def execute_dml(sql: str):
     with engine.begin() as conn:
         try:
             conn.exec_driver_sql(sql)
-        except exc.SQLAlchemyError as e:
+        except SQLAlchemyError as e:
             print(type(e))
 
 def execute_sql(session, sql: str):
