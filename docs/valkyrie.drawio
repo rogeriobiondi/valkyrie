@@ -72,7 +72,7 @@
         <mxCell id="eXSKr5YPAVbvCFBLusHW-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="eXSKr5YPAVbvCFBLusHW-14" target="eXSKr5YPAVbvCFBLusHW-1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="eXSKr5YPAVbvCFBLusHW-21" value="Embed Dashboards&lt;div&gt;Standalone Dashboards&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="eXSKr5YPAVbvCFBLusHW-16">
+        <mxCell id="eXSKr5YPAVbvCFBLusHW-21" value="Embedded Dashboards&lt;div&gt;Standalone Dashboards&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="eXSKr5YPAVbvCFBLusHW-16">
           <mxGeometry x="-0.6373" y="-3" relative="1" as="geometry">
             <mxPoint x="-13" y="-27" as="offset" />
           </mxGeometry>
