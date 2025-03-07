@@ -2,14 +2,20 @@ import os
 import time
 import logging
 
+import pyfiglet
+
 from confluent_kafka import Consumer
 from confluent_kafka import KafkaException
-from valkyrie.database import engine, Session, SessionLocal, execute_sql
 from sqlalchemy.exc import SQLAlchemyError
-from valkyrie.kafka import consumer
+
+from valkyrie.util.config import Config
+from valkyrie.util.database import engine, Session, SessionLocal, execute_sql
+from valkyrie.util.kafka import consumer
+
+config = Config()
 
 # Read logging level from environment variable
-logging.basicConfig(level=os.environ.get("LOGLEVEL", "DEBUG"))
+logging.basicConfig(level=config.LOGLEVEL)
 
 def assignment_callback(consumer, partitions):
     """
@@ -112,11 +118,13 @@ def data_ingestion(session: Session, data: dict) -> None:
     return sql
     
 if __name__ == '__main__':
+    print(pyfiglet.figlet_format("Data Loader"))
     # consumer = Consumer(config)
-    consumer.subscribe(['valkyrie'], on_assign=assignment_callback)
+    consumer.subscribe([config.KAFKA_TOPIC],
+                       on_assign=assignment_callback)
     try:
         while True:
-            event = consumer.poll(1.0)
+            event = consumer.poll(config.KAFKA_POLL_TIMEOUT)
             if event is None:
                 continue
             if event.error():

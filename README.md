@@ -454,6 +454,8 @@ Voilà!
 
 # Known Problems
 
-- Just a PoC for a product. It doesn't have a reliable code, tests etc. If you like it, use on your own risk. Contributions to the project are welcome.
+- It's just a product prototype. No reliable code, tests etc. If you like it, use on your own risk. Contributions to the project are welcome.
+
+- Just one type of chart implemented.
 
 - first time installation: the kafka topic `valkyrie` will be only created after running the server and ingesting some data. If you try to run the loader before it, will raise an error telling the topic does not exist.
