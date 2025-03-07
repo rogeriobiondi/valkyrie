@@ -27,11 +27,11 @@ setup: ## Setup libraries
 
 .PHONY: server-run
 server-run: ## Run the API Server
-	@poetry run uvicorn main:app --reload
+	@poetry run uvicorn valkyrie.main:app --reload
 
 .PHONY: loader-run
 loader-run: ## Run the Bulk Loader
-	@poetry run python loader.py
+	@poetry run python valkyrie/loader.py
 
 .PHONY: dashboard-run
 dashboard-run: ## Run the API
