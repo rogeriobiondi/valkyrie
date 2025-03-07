@@ -129,7 +129,7 @@ make server-run
 
 In the next step, we'll use the API server to create the first sample metric:
 
-```
+```bash
 curl --location 'localhost:8000/measurements' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -154,7 +154,7 @@ curl --location 'localhost:8000/measurements' \
 
 In the next, we'll ingest some sample data. After ingestion, the data-topic will be created for consuming messages. We are running several curl commands due to the shell prompt limit:
 
-```
+```bash
 curl --location 'localhost:8000/bulk' \
 --header 'Content-Type: text/plain' \
 --data 'cx_metrics,state=CA,city=San\ Francisco,base=HQ,company=techcorp,intent=buy customer_id=12345,negative=0,neutral=1,positive=0 1596484800
@@ -215,15 +215,17 @@ cx_metrics,state=LA,city=New\ Orleans,base=MSY,company=innovatech,intent=develop
 The Bulk data loader will process messages loaded via Bulk API or `valkyrie` kafka topic.
 To start the Data Loader, use the following command:
 
-```
+```bash
 make loader-run
 ```
 
 ## Create Datasources
 
-In the next step we'll create some datasources to build our dashboard:
+In the next step we'll create some datasources to build our dashboard.
 
-```
+We'll create a datasource for our metrics.
+
+```bash
 curl --location 'localhost:8000/datasources' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -247,7 +249,11 @@ curl --location 'localhost:8000/datasources' \
         "window": "30 days"
     }
 }'
+```
 
+A datasource for intent queries:
+
+```bash
 curl --location 'http://localhost:8000/datasources' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -292,7 +298,11 @@ curl --location 'http://localhost:8000/datasources' \
         "window": "30 days"
     }
 }'
+```
 
+A datasource for company queries:
+
+```bash
 curl --location 'localhost:8000/datasources' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -321,7 +331,9 @@ curl --location 'localhost:8000/datasources' \
 
 Our dashboard will need filters, so we'll create them.
 
-```
+A filter for company:
+
+```bash
 curl --location 'http://localhost:8000/filters' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -330,7 +342,11 @@ curl --location 'http://localhost:8000/filters' \
     "dimension": "company",
     "order": "asc"
 }'
+```
 
+A filter for intents:
+
+```bash
 curl --location 'http://localhost:8000/filters' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -345,7 +361,9 @@ curl --location 'http://localhost:8000/filters' \
 
 Now we'll define our charts.
 
-```
+A chart for showing cases by intent:
+
+```bash
 curl --location 'localhost:8000/charts' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -362,7 +380,9 @@ curl --location 'localhost:8000/charts' \
 }'
 ```
 
-```
+A chart for showing intent data:
+
+```bash
 curl --location 'localhost:8000/charts' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -380,7 +400,9 @@ curl --location 'localhost:8000/charts' \
 }'
 ```
 
-```
+A chart for company data:
+
+```bash
 curl --location 'localhost:8000/charts' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -399,7 +421,7 @@ curl --location 'localhost:8000/charts' \
 
 Next, we need to configurate the dashboard:
 
-```
+```bash
 curl --location 'http://localhost:8000/dashboards' \
 --header 'Content-Type: application/json' \
 --data '{
@@ -418,7 +440,7 @@ curl --location 'http://localhost:8000/dashboards' \
 
 ## Testing the application
 
-```
+```bash
 make dashboard-run
 ```
 
