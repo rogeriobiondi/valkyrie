@@ -40,3 +40,7 @@ dashboard-run: ## Run the API
 .PHONY: infra-stop
 infra-stop: ## Stop infra
 	@docker compose down
+
+.PHONY: test
+test: ## Run tests
+	@poetry run pytest

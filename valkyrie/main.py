@@ -2,8 +2,10 @@ import os
 import logging
 
 import pyfiglet
+import uvicorn
 
 from fastapi import FastAPI
+
 from starlette.middleware.cors import CORSMiddleware
 
 from valkyrie.routes import filters, \
@@ -20,10 +22,12 @@ config = config.Config()
 
 logging.basicConfig(level=config.LOGLEVEL)
 
-print(pyfiglet.figlet_format("Server"))
-
 app = FastAPI()
+print(pyfiglet.figlet_format("Server"))
+print("version: ", config.VERSION, "\n")
+print("config: ", config.__dict__, "\n")
 
+# add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -57,3 +61,7 @@ async def version():
 @app.get("/ping")
 async def ping():
     return {"ping": "pong"}
+
+# Run the server
+if __name__ == "__main__":
+    uvicorn.run(app, host=config.HOST, port=config.PORT)

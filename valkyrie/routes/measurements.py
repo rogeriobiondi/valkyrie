@@ -6,6 +6,7 @@ from valkyrie.util.config import Config
 from valkyrie.models import Measurement
 from sqlalchemy import insert
 from fastapi import HTTPException
+from fastapi.responses import JSONResponse
 
 config = Config()
 logging.basicConfig(level=config.LOGLEVEL)
@@ -35,10 +36,17 @@ def create_measurement(o: Measurement):
         sql += f"CREATE INDEX IF NOT EXISTS {o.name}_dim_{dim.name}_idx ON {o.name} ({dim.name});\n"
     execute_dml(sql)
     with SessionLocal() as session:        
-        insert_stmt = insert(measurement).values(name=o.name, config=o.dict())
+        # Check if the object is being created correctly.
+        # If it already exists, return a message with code HTTP 409 - Conflict
+        # If it is created successfully,
+        # return the object back to the client and HTTP Code 201
+        result = session.execute(measurement.select().where(measurement.columns.name == o.name))
+        if result.fetchone():
+            raise HTTPException(status_code=409, detail="Measurement already exists")
+        insert_stmt = insert(measurement).values(name=o.name, config=o.model_dump())
         session.execute(insert_stmt)
         session.commit()
-        return o
+        return JSONResponse(status_code=201, content=o.model_dump())
     
 @router.get("/measurements")
 def get_measurements():

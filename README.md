@@ -452,9 +452,17 @@ Voilà!
 ![Dashboard](docs/images/valkyrie.png)
 
 
+## Running Tests
+
+You should have the server component running to run the unit tests.
+
+```bash
+make test
+```
+
 # Known Problems
 
-- It's just a product prototype. No reliable code, tests etc. If you like it, use on your own risk. Contributions to the project are welcome.
+- It's just a product prototype. No reliable code, ~~no tests~~ etc. If you like it, use on your own risk. Contributions to the project are welcome.
 
 - Just one type of chart implemented.
 

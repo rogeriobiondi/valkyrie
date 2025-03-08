@@ -47,11 +47,21 @@ class Filter(BaseModel):
     dimension: str
     order: str | None = "asc"
 
-class Attribute(BaseModel):
+# class Attribute(BaseModel):
+#     name: str
+#     type: Literal["varchar", "float", "integer", "bool"]
+
+class Dimension(BaseModel):
     name: str
-    type: Literal["varchar", "float", "integer", "bool"]
+    type: Literal["integer", "numeric", "bool", "varchar"]
+
+class Field(BaseModel):
+    name: str
+    type: Literal["integer", "numeric", "bool", "varchar"]
 
 class Measurement(BaseModel):
     name: str
-    dimensions: list[Attribute]
-    fields: list[Attribute]
+    dimensions: list[Dimension]
+    fields: list[Field]
+    # dimensions: list[Attribute]
+    # fields: list[Attribute]

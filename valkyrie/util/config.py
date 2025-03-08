@@ -8,6 +8,8 @@ class Config:
     # Load from environment variables if they exist
     def __init__(self):
         self.VERSION = '0.0.1 alpha'
+        self.HOST = os.getenv('HOST', 'localhost')
+        self.PORT = os.getenv('PORT', 8000)
         self.LOGLEVEL = os.getenv('LOGLEVEL', 'DEBUG')
         self.KAFKA_BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'localhost:29092')
         self.KAFKA_GROUP_ID = os.getenv('KAFKA_GROUP_ID', 'valkyrie')
