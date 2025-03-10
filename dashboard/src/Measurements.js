@@ -130,6 +130,10 @@ const Measurements = () => {
         setShowMeasurementPopup(false);
     };
 
+    const handleMeasurementNameChange = (name) => {
+        setSelectedMeasurement({ ...selectedMeasurement, name });
+    };
+
     return (
         <div className="container mt-5">
             {alertVisible && <div className="alert alert-success">Changes applied to database</div>}
@@ -151,25 +155,83 @@ const Measurements = () => {
             </ul>
 
             {showMeasurementPopup && selectedMeasurement && (
-                <ul className='container-fluid'>
-                    <div className="card p-4">
+                <MeasurementPopup
+                    measurement={selectedMeasurement}
+                    onSave={handleSave}
+                    onCancel={cancelMeasurement}
+                    onMeasurementNameChange={handleMeasurementNameChange}
+                    onDimensionChange={handleDimensionChange}
+                    onFieldChange={handleFieldChange}
+                    addDimension={addDimension}
+                    addField={addField}
+                    removeDimension={removeDimension}
+                    removeField={removeField}
+                    showDimensionPopup={showDimensionPopup}
+                    showFieldPopup={showFieldPopup}
+                    saveDimension={saveDimension}
+                    saveField={saveField}
+                    setShowDimensionPopup={setShowDimensionPopup}
+                    setShowFieldPopup={setShowFieldPopup}
+                    editDimension={editDimension}
+                    editField={editField}
+                    tempDimension={tempDimension}
+                    tempField={tempField}
+                />
+            )}
+        </div>
+    );
+};
+
+const MeasurementPopup = ({
+    measurement,
+    onSave,
+    onCancel,
+    onMeasurementNameChange,
+    onDimensionChange,
+    onFieldChange,
+    addDimension,
+    addField,
+    removeDimension,
+    removeField,
+    showDimensionPopup,
+    showFieldPopup,
+    saveDimension,
+    saveField,
+    setShowDimensionPopup,
+    setShowFieldPopup,
+    editDimension,
+    editField,
+    tempDimension,
+    tempField
+}) => {
+    return (
+        <div className="modal show d-block">
+            <div className="modal-dialog modal-lg">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title">Edit Measurement</h5>
+                        <button type="button" className="close" onClick={onCancel}>
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div className="modal-body">
                         <div className="form-group">
-                            <h2>Measurement Edit</h2>
                             <label>Measurement Name</label>
                             <input
                                 type="text"
                                 className="form-control"
-                                value={selectedMeasurement.name}
-                                onChange={(e) => setSelectedMeasurement({ ...selectedMeasurement, name: e.target.value })}
+                                value={measurement.name}
+                                onChange={(e) => onMeasurementNameChange(e.target.value)}
                                 placeholder="Measurement Name"
+                                disabled={!!measurement.id} // Disable the input if the measurement has an id (i.e., it's being edited)
                             />
                         </div>
                         <h3>Dimensions</h3>
                         <button className="btn btn-secondary mb-2" onClick={addDimension}>+</button>
                         <ul className="list-group mb-4">
-                            {selectedMeasurement.dimensions.map((dimension, index) => (
+                            {measurement.dimensions.map((dimension, index) => (
                                 <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-                                    <a href="#" onClick={() => { setEditDimension(index); setShowDimensionPopup(true); }}>
+                                    <a href="#" onClick={() => { setShowDimensionPopup(true); }}>
                                         {dimension.name}
                                     </a>
                                     <button className="btn btn-danger btn-sm" onClick={() => removeDimension(index)}>-</button>
@@ -179,38 +241,37 @@ const Measurements = () => {
                         <h3>Fields</h3>
                         <button className="btn btn-secondary mb-2" onClick={addField}>+</button>
                         <ul className="list-group mb-4">
-                            {selectedMeasurement.fields.map((field, index) => (
+                            {measurement.fields.map((field, index) => (
                                 <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-                                    <a href="#" onClick={() => { setEditField(index); setShowFieldPopup(true); }}>
+                                    <a href="#" onClick={() => { setShowFieldPopup(true); }}>
                                         {field.name}
                                     </a>
                                     <button className="btn btn-danger btn-sm" onClick={() => removeField(index)}>-</button>
                                 </li>
                             ))}
                         </ul>
-
-                        <ul className="modal-footer">
-                            <button className="btn btn-primary" onClick={handleSave}>Save</button>
-                            <button className="btn btn-secondary" onClick={cancelMeasurement}>Cancel</button>
-                        </ul>
-                        
-                        {showDimensionPopup && (
-                            <DimensionPopup
-                                dimension={editDimension !== null ? selectedMeasurement.dimensions[editDimension] : tempDimension}
-                                onSave={saveDimension}
-                                onCancel={() => setShowDimensionPopup(false)}
-                            />
-                        )}
-
-                        {showFieldPopup && (
-                            <FieldPopup
-                                field={editField !== null ? selectedMeasurement.fields[editField] : tempField}
-                                onSave={saveField}
-                                onCancel={() => setShowFieldPopup(false)}
-                            />
-                        )}
                     </div>
-                </ul>
+                    <div className="modal-footer">
+                        <button className="btn btn-primary" onClick={onSave}>Save</button>
+                        <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            {showDimensionPopup && (
+                <DimensionPopup
+                    dimension={editDimension !== null ? measurement.dimensions[editDimension] : tempDimension}
+                    onSave={saveDimension}
+                    onCancel={() => setShowDimensionPopup(false)}
+                />
+            )}
+
+            {showFieldPopup && (
+                <FieldPopup
+                    field={editField !== null ? measurement.fields[editField] : tempField}
+                    onSave={saveField}
+                    onCancel={() => setShowFieldPopup(false)}
+                />
             )}
         </div>
     );
