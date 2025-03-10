@@ -35,7 +35,7 @@ const Dashboard = ({name, config}) => {
                 setError(error.message);
             }
         });
-    }, [name]);
+    }, [name, config.serverUrl]);
 
     if (loading) {
         return <div>Loading...</div>;

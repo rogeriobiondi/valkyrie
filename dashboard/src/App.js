@@ -6,6 +6,7 @@ import "./styles/App.css";
 const App = () => {
   const path = window.location.pathname;
   const dashboardName = path.substring(path.lastIndexOf('/') + 1);
+  console.log("dashboardName", dashboardName);
   if (dashboardName === "") {
     const address = window.location.hostname;
     const port = window.location.port;
