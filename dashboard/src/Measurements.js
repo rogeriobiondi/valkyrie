@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Measurements = () => {
     const [measurements, setMeasurements] = useState([]);
@@ -130,72 +131,86 @@ const Measurements = () => {
     };
 
     return (
-        <div>
-            {alertVisible && <div className="alert">Changes applied to database</div>}
-            <h1>Measurements</h1>
-            <ul>
-                {measurements.map((measurement, index) => (
-                    <li key={index}>
-                        <a href="#" onClick={() => { setSelectedMeasurement(measurement); setShowMeasurementPopup(true); }}>
-                            {measurement.name}
-                        </a>
-                        <button onClick={() => handleDelete(measurement.name)}>-</button>
-                    </li>
-                ))}
+        <div className="container mt-5">
+            {alertVisible && <div className="alert alert-success">Changes applied to database</div>}
+            <h1 className="container-fluid">Measurements</h1>
+            <ul className='container-fluid'>
+                <button className="btn btn-primary" onClick={addMeasurement}>New Measurement</button>
             </ul>
-            <button onClick={addMeasurement}>+</button>
+            <ul className='container-fluid'>
+                <ul className="list-group mb-4">
+                    {measurements.map((measurement, index) => (
+                        <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="#" onClick={() => { setSelectedMeasurement(measurement); setShowMeasurementPopup(true); }}>
+                                {measurement.name}
+                            </a>
+                            <button className="btn btn-danger btn-sm" onClick={() => handleDelete(measurement.name)}>-</button>
+                        </li>
+                    ))}
+                </ul>
+            </ul>
 
             {showMeasurementPopup && selectedMeasurement && (
-                <div>
-                    <input
-                        type="text"
-                        value={selectedMeasurement.name}
-                        onChange={(e) => setSelectedMeasurement({ ...selectedMeasurement, name: e.target.value })}
-                        placeholder="Measurement Name"
-                    />
-                    <h2>Dimensions</h2>
-                    <button onClick={addDimension}>+</button>
-                    <ul>
-                        {selectedMeasurement.dimensions.map((dimension, index) => (
-                            <li key={index}>
-                                <a href="#" onClick={() => { setEditDimension(index); setShowDimensionPopup(true); }}>
-                                    {dimension.name}
-                                </a>
-                                <button onClick={() => removeDimension(index)}>-</button>
-                            </li>
-                        ))}
-                    </ul>
-                    <h2>Fields</h2>
-                    <button onClick={addField}>+</button>
-                    <ul>
-                        {selectedMeasurement.fields.map((field, index) => (
-                            <li key={index}>
-                                <a href="#" onClick={() => { setEditField(index); setShowFieldPopup(true); }}>
-                                    {field.name}
-                                </a>
-                                <button onClick={() => removeField(index)}>-</button>
-                            </li>
-                        ))}
-                    </ul>
-                    <button onClick={handleSave}>Save</button>
-                    <button onClick={cancelMeasurement}>Cancel</button>
+                <ul className='container-fluid'>
+                    <div className="card p-4">
+                        <div className="form-group">
+                            <h2>Measurement Edit</h2>
+                            <label>Measurement Name</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={selectedMeasurement.name}
+                                onChange={(e) => setSelectedMeasurement({ ...selectedMeasurement, name: e.target.value })}
+                                placeholder="Measurement Name"
+                            />
+                        </div>
+                        <h3>Dimensions</h3>
+                        <button className="btn btn-secondary mb-2" onClick={addDimension}>+</button>
+                        <ul className="list-group mb-4">
+                            {selectedMeasurement.dimensions.map((dimension, index) => (
+                                <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="#" onClick={() => { setEditDimension(index); setShowDimensionPopup(true); }}>
+                                        {dimension.name}
+                                    </a>
+                                    <button className="btn btn-danger btn-sm" onClick={() => removeDimension(index)}>-</button>
+                                </li>
+                            ))}
+                        </ul>
+                        <h3>Fields</h3>
+                        <button className="btn btn-secondary mb-2" onClick={addField}>+</button>
+                        <ul className="list-group mb-4">
+                            {selectedMeasurement.fields.map((field, index) => (
+                                <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="#" onClick={() => { setEditField(index); setShowFieldPopup(true); }}>
+                                        {field.name}
+                                    </a>
+                                    <button className="btn btn-danger btn-sm" onClick={() => removeField(index)}>-</button>
+                                </li>
+                            ))}
+                        </ul>
 
-                    {showDimensionPopup && (
-                        <DimensionPopup
-                            dimension={editDimension !== null ? selectedMeasurement.dimensions[editDimension] : tempDimension}
-                            onSave={saveDimension}
-                            onCancel={() => setShowDimensionPopup(false)}
-                        />
-                    )}
+                        <ul className="modal-footer">
+                            <button className="btn btn-primary" onClick={handleSave}>Save</button>
+                            <button className="btn btn-secondary" onClick={cancelMeasurement}>Cancel</button>
+                        </ul>
+                        
+                        {showDimensionPopup && (
+                            <DimensionPopup
+                                dimension={editDimension !== null ? selectedMeasurement.dimensions[editDimension] : tempDimension}
+                                onSave={saveDimension}
+                                onCancel={() => setShowDimensionPopup(false)}
+                            />
+                        )}
 
-                    {showFieldPopup && (
-                        <FieldPopup
-                            field={editField !== null ? selectedMeasurement.fields[editField] : tempField}
-                            onSave={saveField}
-                            onCancel={() => setShowFieldPopup(false)}
-                        />
-                    )}
-                </div>
+                        {showFieldPopup && (
+                            <FieldPopup
+                                field={editField !== null ? selectedMeasurement.fields[editField] : tempField}
+                                onSave={saveField}
+                                onCancel={() => setShowFieldPopup(false)}
+                            />
+                        )}
+                    </div>
+                </ul>
             )}
         </div>
     );
@@ -206,20 +221,40 @@ const DimensionPopup = ({ dimension, onSave, onCancel }) => {
     const [type, setType] = useState(dimension?.type || 'integer');
 
     return (
-        <div className="popup">
-            <h2>Edit Dimension</h2>
-            <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Dimension Name"
-            />
-            <select value={type} onChange={(e) => setType(e.target.value)}>
-                <option value="integer">Integer</option>
-                <option value="varchar">Varchar</option>
-            </select>
-            <button onClick={() => onSave({ name, type })}>Save</button>
-            <button onClick={onCancel}>Cancel</button>
+        <div className="modal show d-block">
+            <div className="modal-dialog">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title">Edit Dimension</h5>
+                        <button type="button" className="close" onClick={onCancel}>
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div className="modal-body">
+                        <div className="form-group">
+                            <label>Dimension Name</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Dimension Name"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Type</label>
+                            <select className="form-control" value={type} onChange={(e) => setType(e.target.value)}>
+                                <option value="integer">Integer</option>
+                                <option value="varchar">Varchar</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className="modal-footer">
+                        <button className="btn btn-primary" onClick={() => onSave({ name, type })}>Save</button>
+                        <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
@@ -229,20 +264,40 @@ const FieldPopup = ({ field, onSave, onCancel }) => {
     const [type, setType] = useState(field?.type || 'integer');
 
     return (
-        <div className="popup">
-            <h2>Edit Field</h2>
-            <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Field Name"
-            />
-            <select value={type} onChange={(e) => setType(e.target.value)}>
-                <option value="integer">Integer</option>
-                <option value="varchar">Varchar</option>
-            </select>
-            <button onClick={() => onSave({ name, type })}>Save</button>
-            <button onClick={onCancel}>Cancel</button>
+        <div className="modal show d-block">
+            <div className="modal-dialog">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title">Edit Field</h5>
+                        <button type="button" className="close" onClick={onCancel}>
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div className="modal-body">
+                        <div className="form-group">
+                            <label>Field Name</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Field Name"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Type</label>
+                            <select className="form-control" value={type} onChange={(e) => setType(e.target.value)}>
+                                <option value="integer">Integer</option>
+                                <option value="varchar">Varchar</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className="modal-footer">
+                        <button className="btn btn-primary" onClick={() => onSave({ name, type })}>Save</button>
+                        <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
