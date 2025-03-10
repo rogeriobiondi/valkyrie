@@ -36,8 +36,13 @@ const Measurements = () => {
 
     const handleSave = async () => {
         try {
-            const response = await axios.post('http://localhost:8000/measurements', selectedMeasurement);
-            console.log(response.data);
+            if (selectedMeasurement.id) {
+                const response = await axios.put(`http://localhost:8000/measurements/${selectedMeasurement.name}`, selectedMeasurement);
+                console.log(response.data);
+            } else {
+                const response = await axios.post('http://localhost:8000/measurements', selectedMeasurement);
+                console.log(response.data);
+            }
             setShowMeasurementPopup(false);
             showAlert();
             fetchMeasurements(); // Reload the list of measurements
@@ -145,7 +150,7 @@ const Measurements = () => {
                 <ul className="list-group mb-4">
                     {measurements.map((measurement, index) => (
                         <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-                            <a href="#" onClick={() => { setSelectedMeasurement(measurement); setShowMeasurementPopup(true); }}>
+                            <a href="#" onClick={() => { measurement.id = measurement.name; setSelectedMeasurement(measurement); setShowMeasurementPopup(true); }}>
                                 {measurement.name}
                             </a>
                             <button className="btn btn-danger btn-sm" onClick={() => handleDelete(measurement.name)}>-</button>

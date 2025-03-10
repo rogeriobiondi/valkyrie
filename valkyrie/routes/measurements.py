@@ -47,7 +47,36 @@ def create_measurement(o: Measurement):
         session.execute(insert_stmt)
         session.commit()
         return JSONResponse(status_code=201, content=o.model_dump())
-    
+
+@router.put("/measurements/{name}")
+def update_measurement(name: str, o: Measurement):
+    with SessionLocal() as session:
+        result = session.execute(measurement.select().where(
+            measurement.columns.name == name))
+        record = result.fetchone()
+        if not record:
+            raise HTTPException(status_code=404, detail="Measurement not found")
+        if record[1]['name'] != o.name:
+            raise HTTPException(status_code=400, detail="Cannot change measurement name")
+        sql = f"DROP TABLE IF EXISTS {name};"
+        execute_dml(sql)
+        sql = f"CREATE TABLE IF NOT EXISTS {o.name} ( "
+        for dim in o.dimensions:
+            sql += f"{dim.name} {dim.type}, "
+        for field in o.fields:
+            sql += f"{field.name} {field.type}, "
+        sql += "timestamp timestamp );\n"
+        sql += f"SELECT create_hypertable('{o.name}', 'timestamp');\n"
+        for dim in o.dimensions:
+            sql += f"CREATE INDEX IF NOT EXISTS {o.name}_dim_{dim.name}_idx ON {o.name} ({dim.name});\n"
+        execute_dml(sql)
+        
+        update_stmt = measurement.update().where(measurement.columns.name == name).values(name=o.name, config=o.model_dump())
+        session.execute(update_stmt)
+        session.commit()
+        return JSONResponse(status_code=200, content=o.model_dump())
+
+
 @router.get("/measurements")
 def get_measurements():
     with SessionLocal() as session:

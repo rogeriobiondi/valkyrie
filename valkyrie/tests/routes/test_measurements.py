@@ -42,6 +42,39 @@ def test_create_measurement():
     assert response.json()["fields"][0]["name"] == "field1"
     assert response.json()["fields"][0]["type"] == "integer"
 
+def test_update_measurement():
+    """
+    The server should return a 200 status code
+    if the measurement is updated successfully.
+    """
+    # create a measurement
+    measurement = Measurement(
+        name="test_measurement",
+        dimensions=[
+            Dimension(name="dimension1", type="integer"),
+            Dimension(name="dimension2", type="varchar"),
+            Dimension(name="dimension3", type="varchar")
+        ],
+        fields=[
+            Field(name="field1", type="integer"),
+            Field(name="field2", type="integer"),
+            Field(name="field3", type="integer")
+        ]
+    )
+    model_dump = measurement.model_dump()
+    response = requests.put(
+        f"http://{config.HOST}:{config.PORT}/measurements/test_measurement",
+        json=model_dump)
+    # check the status code
+    assert response.status_code == 200
+    assert response.json()["name"] == "test_measurement"
+    assert len(response.json()["dimensions"]) == 3
+    assert response.json()["dimensions"][0]["name"] == "dimension1"
+    assert response.json()["dimensions"][0]["type"] == "integer"
+    assert len(response.json()["fields"]) == 3
+    assert response.json()["fields"][0]["name"] == "field1"
+    assert response.json()["fields"][0]["type"] == "integer"
+
 def test_recreate_measurement():
     """
     If the measurement already exists, 
