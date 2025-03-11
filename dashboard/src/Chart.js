@@ -6,6 +6,8 @@ import axios from 'axios';
 
 import ReactECharts from 'echarts-for-react';
 
+import Config from './Config';
+
 
 export default function Chart({name, selected, config}) {
 
@@ -26,7 +28,7 @@ export default function Chart({name, selected, config}) {
     
     useEffect(() => {
         setLoading(true);        
-        const url = config.serverUrl + "/graph/";
+        const url = Config.serverBaseUrl + "/graph/";
         let calc_url = url + name;
         // url encoded props.selected
         if (selected && selected.length !== 0) {

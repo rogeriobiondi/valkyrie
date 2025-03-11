@@ -4,6 +4,7 @@ import { useState } from "react";
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
 import React from 'react';
+import Config from './Config';
 
 const Filter = (props) => {
     
@@ -19,7 +20,7 @@ const Filter = (props) => {
             // Wait all map promises to be resolved
             // Map each filter to a promise
             const promises = props.dashboard.config.filters.map((filter, i) => {
-                let url = props.config.serverUrl + "/filters/data/" + filter;
+                let url = Config.serverBaseUrl + "/filters/data/" + filter;
                 return axios.get(url).then((response) => response.data);
             });
             // Wait all promises to be resolved

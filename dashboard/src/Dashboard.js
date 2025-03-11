@@ -3,7 +3,7 @@ import Chart from "./Chart";
 import Filter from './Filter';
 
 import axios from 'axios';
-
+import Config from './Config';
 
 import './Dashboard.css';
 
@@ -18,7 +18,7 @@ const Dashboard = ({name, config}) => {
     });       
     
     useEffect(() => {
-        const url = config.serverUrl + "/dashboards/";
+        const url = Config.serverBaseUrl + "/dashboards/";
         setLoading(true);
         let calc_url = url + name;
         axios.get(calc_url)
@@ -35,7 +35,7 @@ const Dashboard = ({name, config}) => {
                 setError(error.message);
             }
         });
-    }, [name, config.serverUrl]);
+    }, [name, Config.serverBaseUrl]);
 
     if (loading) {
         return <div>Loading...</div>;

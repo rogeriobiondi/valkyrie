@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Config from '../Config';
 
 const Measurements = () => {
+    const url = Config.serverBaseUrl + '/measurements';
     const [measurements, setMeasurements] = useState([]);
     const [selectedMeasurement, setSelectedMeasurement] = useState(null);
     const [editDimension, setEditDimension] = useState(null);
@@ -16,7 +18,8 @@ const Measurements = () => {
 
     const fetchMeasurements = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/measurements');
+            const url = Config.serverBaseUrl + '/measurements';
+            const response = await axios.get(url);
             setMeasurements(response.data);
         } catch (error) {
             console.error('Error fetching measurements:', error);
@@ -37,10 +40,10 @@ const Measurements = () => {
     const handleSave = async () => {
         try {
             if (selectedMeasurement.id) {
-                const response = await axios.put(`http://localhost:8000/measurements/${selectedMeasurement.name}`, selectedMeasurement);
+                const response = await axios.put(`${url}/${selectedMeasurement.name}`, selectedMeasurement);
                 console.log(response.data);
             } else {
-                const response = await axios.post('http://localhost:8000/measurements', selectedMeasurement);
+                const response = await axios.post(url, selectedMeasurement);
                 console.log(response.data);
             }
             setShowMeasurementPopup(false);
@@ -53,7 +56,7 @@ const Measurements = () => {
 
     const handleDelete = async (measurementName) => {
         try {
-            const response = await axios.delete(`http://localhost:8000/measurements/${measurementName}`);
+            const response = await axios.delete(`${url}/${measurementName}`);
             console.log(response.data);
             setMeasurements(measurements.filter(m => m.name !== measurementName));
             showAlert();
@@ -144,6 +147,8 @@ const Measurements = () => {
             {alertVisible && <div className="alert alert-success">Changes applied to database</div>}
             <h1 className="container-fluid">Measurements</h1>
             <ul className='container-fluid'>
+                <button className="btn btn-primary" onClick={() => window.location.href = '/admin'}>Menu</button>
+                <span> </span>                
                 <button className="btn btn-primary" onClick={addMeasurement}>New Measurement</button>
             </ul>
             <ul className='container-fluid'>
@@ -153,7 +158,7 @@ const Measurements = () => {
                             <a href="#" onClick={() => { measurement.id = measurement.name; setSelectedMeasurement(measurement); setShowMeasurementPopup(true); }}>
                                 {measurement.name}
                             </a>
-                            <button className="btn btn-danger btn-sm" onClick={() => handleDelete(measurement.name)}>-</button>
+                            <button className="btn btn-danger btn-sm btn-function-square" onClick={() => handleDelete(measurement.name)}>-</button>
                         </li>
                     ))}
                 </ul>
@@ -214,11 +219,15 @@ const MeasurementPopup = ({
             <div className="modal-dialog modal-lg">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h5 className="modal-title">Edit Measurement</h5>
                         <button type="button" className="close" onClick={onCancel}>
                             <span>&times;</span>
                         </button>
+                        <span>&nbsp;&nbsp;&nbsp;</span>
+                        <div>
+                            <h5 className="modal-title">Edit Measurement</h5>
+                        </div>
                     </div>
+                    
                     <div className="modal-body">
                         <div className="form-group">
                             <label>Measurement Name</label>
@@ -239,7 +248,7 @@ const MeasurementPopup = ({
                                     <a href="#" onClick={() => { setShowDimensionPopup(true); }}>
                                         {dimension.name}
                                     </a>
-                                    <button className="btn btn-danger btn-sm" onClick={() => removeDimension(index)}>-</button>
+                                    <button className="btn btn-danger btn-sm btn-function-square" onClick={() => removeDimension(index)}>-</button>
                                 </li>
                             ))}
                         </ul>
@@ -251,7 +260,7 @@ const MeasurementPopup = ({
                                     <a href="#" onClick={() => { setShowFieldPopup(true); }}>
                                         {field.name}
                                     </a>
-                                    <button className="btn btn-danger btn-sm" onClick={() => removeField(index)}>-</button>
+                                    <button className="btn btn-danger btn-sm btn-function-square" onClick={() => removeField(index)}>-</button>
                                 </li>
                             ))}
                         </ul>

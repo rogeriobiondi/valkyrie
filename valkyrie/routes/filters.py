@@ -24,6 +24,19 @@ async def create_filter(o: Filter):
             session.commit()
             return o
 
+@router.put("/filters/{name}")
+async def update_filter(name: str, o: Filter):
+    with SessionLocal() as session:
+        exists = session.query
+        exists = session.query(filter
+        ).filter(filter.columns.name == name).one_or_none()
+        if exists == None:
+            raise HTTPException(status_code=404, detail=f"Filter '{name}' not found")
+        update_stmt = filter.update().where(filter.columns.name == name).values(datasource=o.datasource, dimension=o.dimension, order=o.order)
+        session.execute(update_stmt)
+        session.commit()
+        return o
+
 @router.get("/filters/{name}")
 async def get_filter(name: str):
     with SessionLocal() as session:

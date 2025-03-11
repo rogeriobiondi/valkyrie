@@ -1,6 +1,7 @@
-import Config from "./Config";
+import Config from "./admin/Admin";
 import DashBoard from "./Dashboard";
 import React from "react";
+
 import "./styles/App.css";
 
 const App = () => {

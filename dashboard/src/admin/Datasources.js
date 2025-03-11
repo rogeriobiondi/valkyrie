@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Autosuggest from 'react-autosuggest';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Tooltip, OverlayTrigger } from 'react-bootstrap';
+import MeasurementTip from './Tooltip';
+import Config from '../Config';
 
 const Datasources = () => {
+    const url = Config.serverBaseUrl + '/datasources';
+    const urlMeasurements = Config.serverBaseUrl + '/measurements';
     const [datasources, setDatasources] = useState([]);
     const [selectedDatasource, setSelectedDatasource] = useState(null);
     const [showDatasourcePopup, setShowDatasourcePopup] = useState(false);
@@ -21,10 +25,11 @@ const Datasources = () => {
     const [tempGroup, setTempGroup] = useState('');
     const [alertVisible, setAlertVisible] = useState(false);
     const [measurements, setMeasurements] = useState([]);
+    const [tooltipVisible, setTooltipVisible] = useState(false);
 
     const fetchDatasources = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/datasources');
+            const response = await axios.get(url);
             setDatasources(response.data);
         } catch (error) {
             console.error('Error fetching datasources:', error);
@@ -33,7 +38,7 @@ const Datasources = () => {
 
     const fetchMeasurements = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/measurements');
+            const response = await axios.get(urlMeasurements);
             setMeasurements(response.data);
         } catch (error) {
             console.error('Error fetching measurements:', error);
@@ -55,10 +60,10 @@ const Datasources = () => {
     const handleSave = async () => {
         try {
             if (selectedDatasource.id) {
-                const response = await axios.put(`http://localhost:8000/datasources/${selectedDatasource.name}`, selectedDatasource);
+                const response = await axios.put(`${url}/${selectedDatasource.name}`, selectedDatasource);
                 console.log(response.data);
             } else {
-                const response = await axios.post('http://localhost:8000/datasources', selectedDatasource);
+                const response = await axios.post(url, selectedDatasource);
                 console.log(response.data);
             }
             setShowDatasourcePopup(false);
@@ -71,7 +76,7 @@ const Datasources = () => {
 
     const handleDelete = async (datasourceName) => {
         try {
-            const response = await axios.delete(`http://localhost:8000/datasources/${datasourceName}`);
+            const response = await axios.delete(`${url}/${datasourceName}`);
             console.log(response.data);
             setDatasources(datasources.filter(d => d.name !== datasourceName));
             showAlert();
@@ -226,6 +231,8 @@ const Datasources = () => {
             {alertVisible && <div className="alert alert-success">Changes applied to database</div>}
             <h1 className="container-fluid">Datasources</h1>
             <ul className='container-fluid'>
+                <button className="btn btn-primary" onClick={() => window.location.href = '/admin'}>Menu</button>
+                <span> </span> 
                 <button className="btn btn-primary" onClick={addDatasource}>New Datasource</button>
             </ul>
             <ul className='container-fluid'>
@@ -263,10 +270,10 @@ const Datasources = () => {
                     measurements={measurements}
                 />
             )}
-
-            {showFieldPopup && (
+            {showFieldPopup && selectedDatasource && (
                 <FieldPopup
                     field={tempField}
+                    measurement={selectedDatasource?.query?.measurement || ''}
                     onSave={saveField}
                     onCancel={() => setShowFieldPopup(false)}
                 />
@@ -275,6 +282,7 @@ const Datasources = () => {
             {showFilterPopup && (
                 <FilterPopup
                     filter={tempFilter}
+                    measurement={selectedDatasource?.query?.measurement || ''}
                     onSave={saveFilter}
                     onCancel={() => setShowFilterPopup(false)}
                 />
@@ -285,6 +293,7 @@ const Datasources = () => {
                     order={tempOrder}
                     onSave={saveOrder}
                     onCancel={() => setShowOrderPopup(false)}
+                    measurement={selectedDatasource?.query?.measurement || ''}
                 />
             )}
 
@@ -293,6 +302,7 @@ const Datasources = () => {
                     group={tempGroup}
                     onSave={saveGroup}
                     onCancel={() => setShowGroupPopup(false)}
+                    measurement={selectedDatasource?.query?.measurement || ''}
                 />
             )}
         </div>
@@ -324,10 +334,12 @@ const DatasourcePopup = ({
             <div className="modal-dialog modal-lg">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h5 className="modal-title">Edit Datasource</h5>
+                        
                         <button type="button" className="close" onClick={onCancel}>
                             <span>&times;</span>
                         </button>
+                        <span>&nbsp;&nbsp;&nbsp;</span>
+                        <h5 className="modal-title">Edit Datasource</h5>
                     </div>
                     <div className="modal-body">
                         <div className="form-group">
@@ -348,7 +360,7 @@ const DatasourcePopup = ({
                                 value={datasource.query.measurement}
                                 onChange={(e) => onQueryChange('measurement', e.target.value)}
                             >
-                                <option value="">Select Measurement</option>
+                                <option id="measurement-cb" value="">Select Measurement</option>
                                 {measurements.map((measurement) => (
                                     <option key={measurement.name} value={measurement.name}>
                                         {measurement.name}
@@ -367,13 +379,13 @@ const DatasourcePopup = ({
                             />
                         </div>
                         <div className="form-group">
-                            <label>Fields</label>
                             <button className="btn btn-secondary mb-2" onClick={addField}>+</button>
+                            <label>&nbsp;&nbsp;Fields</label>
                             <ul className="list-group mb-4">
                                 {datasource.query.fields.map((field, index) => (
                                     <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
                                         <a href="#" onClick={() => editField(index)}>
-                                            {field.alias}
+                                            {`${field.expression} [${field.alias}]`}
                                         </a>
                                         <button className="btn btn-danger btn-sm" onClick={() => removeField(index)}>-</button>
                                     </li>
@@ -381,13 +393,13 @@ const DatasourcePopup = ({
                             </ul>
                         </div>
                         <div className="form-group">
-                            <label>Filters</label>
                             <button className="btn btn-secondary mb-2" onClick={addFilter}>+</button>
+                            <label>&nbsp;&nbsp;Filters</label>
                             <ul className="list-group mb-4">
                                 {datasource.query.filters.map((filter, index) => (
                                     <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
                                         <a href="#" onClick={() => editFilter(index)}>
-                                            {`${filter.op}:${filter.field}:${filter.value}`}
+                                            {`${filter.field}:${filter.op}:${filter.value}`}
                                         </a>
                                         <button className="btn btn-danger btn-sm" onClick={() => removeFilter(index)}>-</button>
                                     </li>
@@ -395,8 +407,8 @@ const DatasourcePopup = ({
                             </ul>
                         </div>
                         <div className="form-group">
-                            <label>Order</label>
                             <button className="btn btn-secondary mb-2" onClick={addOrder}>+</button>
+                            <label>&nbsp;&nbsp;Order</label>
                             <ul className="list-group mb-4">
                                 {datasource.query.order.map((order, index) => (
                                     <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
@@ -409,8 +421,8 @@ const DatasourcePopup = ({
                             </ul>
                         </div>
                         <div className="form-group">
-                            <label>Group</label>
                             <button className="btn btn-secondary mb-2" onClick={addGroup}>+</button>
+                            <label>&nbsp;&nbsp;Group</label>
                             <ul className="list-group mb-4">
                                 {datasource.query.group.map((group, index) => (
                                     <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
@@ -433,9 +445,10 @@ const DatasourcePopup = ({
     );
 };
 
-const FieldPopup = ({ field, onSave, onCancel }) => {
+const FieldPopup = ({ field, onSave, onCancel, measurement }) => {
     const [alias, setAlias] = useState(field?.alias || '');
     const [expression, setExpression] = useState(field?.expression || '');
+    const [tooltipVisible, setTooltipVisible] = useState(false);
 
     return (
         <div className="modal show d-block">
@@ -466,7 +479,14 @@ const FieldPopup = ({ field, onSave, onCancel }) => {
                                 value={expression}
                                 onChange={(e) => setExpression(e.target.value)}
                                 placeholder="Expression"
+                                onFocus={() => setTooltipVisible(true)}
+                                onBlur={() => setTooltipVisible(false)}
                             />
+                            {tooltipVisible && measurement && (
+                                <div className="tooltip-box">
+                                    <MeasurementTip measurement={measurement} />
+                                </div>
+                            )}
                         </div>
                     </div>
                     <div className="modal-footer">
@@ -479,10 +499,12 @@ const FieldPopup = ({ field, onSave, onCancel }) => {
     );
 };
 
-const FilterPopup = ({ filter, onSave, onCancel }) => {
+const FilterPopup = ({ filter, onSave, onCancel, measurement }) => {
     const [op, setOp] = useState(filter?.op || 'eq');
     const [field, setField] = useState(filter?.field || '');
     const [value, setValue] = useState(filter?.value || '');
+    const [tooltipVisibleField, setTooltipVisibleField] = useState(false);
+    const [tooltipVisibleValue, setTooltipVisibleValue] = useState(false);
 
     return (
         <div className="modal show d-block">
@@ -503,8 +525,16 @@ const FilterPopup = ({ filter, onSave, onCancel }) => {
                                 value={field}
                                 onChange={(e) => setField(e.target.value)}
                                 placeholder="Field"
+                                onFocus={() => setTooltipVisibleField(true)}
+                                onBlur={() => setTooltipVisibleField(false)}
                             />
+                            {tooltipVisibleField && measurement && (
+                                <div className="tooltip-box">
+                                    <MeasurementTip measurement={measurement} />
+                                </div>
+                            )}
                         </div>
+
                         <div className="form-group">
                             <label>Operation</label>
                             <select className="form-control" value={op} onChange={(e) => setOp(e.target.value)}>
@@ -516,6 +546,7 @@ const FilterPopup = ({ filter, onSave, onCancel }) => {
                                 <option value="gte">gte</option>
                             </select>
                         </div>
+
                         <div className="form-group">
                             <label>Value</label>
                             <input
@@ -523,12 +554,21 @@ const FilterPopup = ({ filter, onSave, onCancel }) => {
                                 className="form-control"
                                 value={value}
                                 onChange={(e) => setValue(e.target.value)}
+                                onFocus={() => setTooltipVisibleValue(true)}
+                                onBlur={() => setTooltipVisibleValue(false)}
                                 placeholder="Value"
                             />
+                            {tooltipVisibleValue && measurement && (
+                                <div className="tooltip-box">
+                                    <MeasurementTip measurement={measurement} />
+                                </div>
+                            )}
                         </div>
                     </div>
                     <div className="modal-footer">
-                        <button className="btn btn-primary" onClick={() => onSave({ op, field, value })}>Save</button>
+                        <button className="btn btn-primary" onClick={() => onSave({ op, field, value })}>
+                            Save
+                        </button>
                         <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
                     </div>
                 </div>
@@ -537,9 +577,10 @@ const FilterPopup = ({ filter, onSave, onCancel }) => {
     );
 };
 
-const OrderPopup = ({ order, onSave, onCancel }) => {
+const OrderPopup = ({ order, onSave, onCancel, measurement }) => {
     const [field, setField] = useState(order?.field || '');
     const [orderType, setOrderType] = useState(order?.order || 'asc');
+    const [tooltipVisible, setTooltipVisible] = useState(false);
 
     return (
         <div className="modal show d-block">
@@ -559,19 +600,32 @@ const OrderPopup = ({ order, onSave, onCancel }) => {
                                 className="form-control"
                                 value={field}
                                 onChange={(e) => setField(e.target.value)}
+                                onFocus={() => setTooltipVisible(true)}
+                                onBlur={() => setTooltipVisible(false)}
                                 placeholder="Field"
                             />
+                            {tooltipVisible && measurement && (
+                                <div className="tooltip-box">
+                                    <MeasurementTip measurement={measurement} />
+                                </div>
+                            )}
                         </div>
                         <div className="form-group">
                             <label>Order</label>
-                            <select className="form-control" value={orderType} onChange={(e) => setOrderType(e.target.value)}>
+                            <select
+                                className="form-control"
+                                value={orderType}
+                                onChange={(e) => setOrderType(e.target.value)}
+                            >
                                 <option value="asc">asc</option>
                                 <option value="desc">desc</option>
                             </select>
                         </div>
                     </div>
                     <div className="modal-footer">
-                        <button className="btn btn-primary" onClick={() => onSave({ field, order: orderType })}>Save</button>
+                        <button className="btn btn-primary" onClick={() => onSave({ field, order: orderType })}>
+                            Save
+                        </button>
                         <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
                     </div>
                 </div>
@@ -580,8 +634,9 @@ const OrderPopup = ({ order, onSave, onCancel }) => {
     );
 };
 
-const GroupPopup = ({ group, onSave, onCancel }) => {
+const GroupPopup = ({ group, onSave, onCancel, measurement }) => {
     const [field, setField] = useState(group || '');
+    const [tooltipVisible, setTooltipVisible] = useState(false);
 
     return (
         <div className="modal show d-block">
@@ -601,8 +656,15 @@ const GroupPopup = ({ group, onSave, onCancel }) => {
                                 className="form-control"
                                 value={field}
                                 onChange={(e) => setField(e.target.value)}
+                                onFocus={() => setTooltipVisible(true)}
+                                onBlur={() => setTooltipVisible(false)}
                                 placeholder="Field"
                             />
+                            {tooltipVisible && measurement && (
+                                <div className="tooltip-box">
+                                    <MeasurementTip measurement={measurement} />
+                                </div>
+                            )}
                         </div>
                     </div>
                     <div className="modal-footer">
