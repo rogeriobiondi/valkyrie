@@ -25,7 +25,11 @@ const Menu = () => {
 
     return (
         <div className="container">
-            <h1 className="title-rounded">Valkyrie Admin</h1>
+            <div className="container-fluid">
+            <h1 className="title-rounded">Valkyrie</h1>
+            <h2 className="title-rounded">Admin Menu</h2>
+            </div>
+            <br />
             <div className="btn-group-horizontal" role="group" aria-label="Admin Menu">
                 <Link to={`${baseUrl}/measurements#`} className="btn btn-primary btn-square">
                     <i className="glyphicon glyphicon-stats"></i>

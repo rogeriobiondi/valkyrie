@@ -46,9 +46,9 @@ const Dashboard = ({name, config}) => {
     }
 
     return (
-        <div>
+        <div className='container-fluid'>
             <h1 className="title">{(dashboard.config.title) ? (dashboard.config.title) : ("dashboard.config.title")}</h1>
-            <div>
+            <div className='container-fluid'>
                 <Filter dashboard={dashboard} config={config}>                    
                     {
                         dashboard.config.charts.map((chart, i) => {
