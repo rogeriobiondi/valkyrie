@@ -52,7 +52,11 @@ const Dashboard = ({name, config}) => {
                 <Filter dashboard={dashboard} config={config}>                    
                     {
                         dashboard.config.charts.map((chart, i) => {
-                            return (<Chart key={i} name={chart} config={config}/>);
+                            return (
+                                <div key={i} className="chart-container">
+                                    <Chart name={chart} config={config}/>
+                                </div>
+                            );
                         })
                     }                    
                 </Filter>

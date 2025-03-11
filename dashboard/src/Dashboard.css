@@ -46,3 +46,13 @@
     flex-grow: 1;
     padding: 10px;
 }
+
+.container-fluid {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.chart-container {
+    flex: 1 1 45%; /* Adjust the width as needed */
+    margin: 10px;
+}
