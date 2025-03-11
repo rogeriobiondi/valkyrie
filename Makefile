@@ -5,42 +5,42 @@ export PYTHONPATH=$(CURDIR)
 
 define set_user_id
     export USER_ID=$(shell id -u)
-	$(eval export USER_ID=$(shell id -u))
+    $(eval export USER_ID=$(shell id -u))
 endef
 
 .PHONY: help
 help: ## Command help
-	@egrep -h '\s##\s' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+    @egrep -h '\s##\s' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: install
 install: ## Install
-	@poetry install
-	@cd dashboard;npm install
+    @poetry install
+    @cd dashboard;npm install --legacy-peer-deps
 
 .PHONY: infra-start
 infra-start: ## Start infra
-	@docker compose up
+    @docker compose up
 
 .PHONY: setup
 setup: ## Setup libraries
-	@poetry install
+    @poetry install
 
 .PHONY: server-run
 server-run: ## Run the API Server
-	@poetry run uvicorn valkyrie.main:app --reload
+    @poetry run uvicorn valkyrie.main:app --reload
 
 .PHONY: loader-run
 loader-run: ## Run the Bulk Loader
-	@poetry run python valkyrie/loader.py
+    @poetry run python valkyrie/loader.py
 
 .PHONY: dashboard-run
 dashboard-run: ## Run the API
-	@export NODE_OPTIONS=--openssl-legacy-provider;cd dashboard;poetry run npm start
+    @export NODE_OPTIONS=--openssl-legacy-provider;cd dashboard;poetry run npm start --legacy-peer-deps
 
 .PHONY: infra-stop
 infra-stop: ## Stop infra
-	@docker compose down
+    @docker compose down
 
 .PHONY: test
 test: ## Run tests
-	@poetry run pytest
+    @poetry run pytest
