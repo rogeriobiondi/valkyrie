@@ -91,12 +91,12 @@ const Filters = () => {
       <h1 className="container-fluid">Filters</h1>
       <ul className="container-fluid">
         <button className="btn btn-primary" onClick={() => window.location.href = '/admin'}>Menu</button>
-        <span> </span> 
+        <span>&nbsp;</span> 
         <button className="btn btn-primary" onClick={addFilter}>New Filter</button>
       </ul>
       <ul className="container-fluid list-group">
         {filters.map((filter, index) => (
-          <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+          <li key={index} className={`list-group-item d-flex justify-content-between align-items-center ${index % 2 === 0 ? 'bg-light' : ''}`}> 
             <a href="#" onClick={() => editFilter(index)}>
               {filter.name}
             </a>

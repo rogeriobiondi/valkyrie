@@ -27,6 +27,7 @@ const Menu = () => {
         <div className="container">
             <div className="container-fluid">
             <h1 className="title-rounded">Valkyrie</h1>
+            <div className="container-fluid"></div>
             <h2 className="title-rounded">Admin Menu</h2>
             </div>
             <br />

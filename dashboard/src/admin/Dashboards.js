@@ -129,12 +129,12 @@ const Dashboards = () => {
       <h1 className="container-fluid">Dashboards</h1>
       <ul className="container-fluid">
         <button className="btn btn-primary" onClick={() => window.location.href = '/admin'}>Menu</button>
-        <span> </span>
+        <span>&nbsp;</span>
         <button className="btn btn-primary" onClick={addDashboard}>New Dashboard</button>
       </ul>
       <ul className="container-fluid list-group">
         {dashboards.map((dashboard, index) => (
-          <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+          <li key={index} className={`list-group-item d-flex justify-content-between align-items-center ${index % 2 === 0 ? 'bg-light' : ''}`}>
             <div>
               <a href="#" onClick={() => editDashboard(index)}>
                 {dashboard.name}
@@ -294,10 +294,11 @@ const ChartsPopup = ({ charts, selectedChart, setSelectedChart, onSave, onCancel
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">Add Chart</h5>
             <button type="button" className="close" onClick={onCancel}>
               <span>&times;</span>
             </button>
+            <span>&nbsp;&nbsp;&nbsp;</span>
+            <h5 className="modal-title">Add Chart</h5>
           </div>
           <div className="modal-body">
             <div className="form-group">
@@ -331,10 +332,11 @@ const FiltersPopup = ({ filters, selectedFilter, setSelectedFilter, onSave, onCa
       <div className="modal-dialog">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">Add Filter</h5>
             <button type="button" className="close" onClick={onCancel}>
               <span>&times;</span>
             </button>
+            <span>&nbsp;&nbsp;&nbsp;</span>
+            <h5 className="modal-title">Add Filter</h5>
           </div>
           <div className="modal-body">
             <div className="form-group">

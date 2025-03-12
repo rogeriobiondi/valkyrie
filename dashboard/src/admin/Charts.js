@@ -91,12 +91,12 @@ const Charts = () => {
       <h1 className="container-fluid">Charts</h1>
       <ul className="container-fluid">
         <button className="btn btn-primary" onClick={() => window.location.href = '/admin'}>Menu</button>
-        <span> </span>
+        <span>&nbsp;</span>
         <button className="btn btn-primary" onClick={addChart}>New Chart</button>
       </ul>
       <ul className="container-fluid list-group">
         {charts.map((chart, index) => (
-          <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+          <li key={index} className={`list-group-item d-flex justify-content-between align-items-center ${index % 2 === 0 ? 'bg-light' : ''}`}>
             <a href="#" onClick={() => editChart(index)}>
               {chart.name}
             </a>

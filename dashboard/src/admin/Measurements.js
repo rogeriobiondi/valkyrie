@@ -148,13 +148,13 @@ const Measurements = () => {
             <h1 className="container-fluid">Measurements</h1>
             <ul className='container-fluid'>
                 <button className="btn btn-primary" onClick={() => window.location.href = '/admin'}>Menu</button>
-                <span> </span>                
+                <span>&nbsp;</span>   
                 <button className="btn btn-primary" onClick={addMeasurement}>New Measurement</button>
             </ul>
             <ul className='container-fluid'>
-                <ul className="list-group mb-4">
+                <ul className="list-group container-fluid">
                     {measurements.map((measurement, index) => (
-                        <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                        <li key={index} className={`list-group-item d-flex justify-content-between align-items-center ${index % 2 === 0 ? 'bg-light' : ''}`}>
                             <a href="#" onClick={() => { measurement.id = measurement.name; setSelectedMeasurement(measurement); setShowMeasurementPopup(true); }}>
                                 {measurement.name}
                             </a>
@@ -300,10 +300,11 @@ const DimensionPopup = ({ dimension, onSave, onCancel }) => {
             <div className="modal-dialog">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h5 className="modal-title">Edit Dimension</h5>
                         <button type="button" className="close" onClick={onCancel}>
                             <span>&times;</span>
                         </button>
+                        <span>&nbsp;&nbsp;&nbsp;</span>
+                        <h5 className="modal-title">Edit Dimension</h5>
                     </div>
                     <div className="modal-body">
                         <div className="form-group">
@@ -343,10 +344,11 @@ const FieldPopup = ({ field, onSave, onCancel }) => {
             <div className="modal-dialog">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h5 className="modal-title">Edit Field</h5>
                         <button type="button" className="close" onClick={onCancel}>
                             <span>&times;</span>
                         </button>
+                        <span>&nbsp;&nbsp;&nbsp;</span>
+                        <h5 className="modal-title">Edit Field</h5>
                     </div>
                     <div className="modal-body">
                         <div className="form-group">
