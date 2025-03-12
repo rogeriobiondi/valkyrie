@@ -477,10 +477,16 @@ You should have the server component running to run the unit tests.
 make test
 ```
 
-# Known Problems
+# Known Problems and Todos
 
-- It's just a product prototype. No reliable code, ~~no tests~~ etc. If you like it, use on your own risk. Contributions to the project are welcome.
+- It's just a product prototype. No reliable code, ~~no tests~~ etc. If you like, use it on your own risk. Contributions to the project are always welcome.
 
-- Just one type of chart implemented.
+- Just one type of chart implemented:
+    - `stackedbar-horizontal`
 
-- first time installation: the kafka topic `valkyrie` will be only created after running the server and ingesting some data. If you try to run the loader before it, will raise an error telling the topic does not exist.
+- First time installation: the kafka topic `valkyrie` will be only created after running the server and ingesting some data. If you try to run the loader before it, will raise an error telling the topic does not exist.
+
+- No production deployments
+    - Docker Deployment
+    - Kubernetes Deployment (Manifests)
+    - Kubernetes Deployment (Helm)
