@@ -4,7 +4,7 @@ import { useAuth } from '../AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import Config from '../Config';
-import '../index.css';
+import '../styles/index.css';
 
 /**
  * Represents a configuration object.
