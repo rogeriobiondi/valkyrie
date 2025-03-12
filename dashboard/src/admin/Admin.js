@@ -1,34 +1,33 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import Config from '../Config';
-
 import '../index.css';
-
-
 
 /**
  * Represents a configuration object.
  * @returns {Object} The configuration object.
  */
-     
 const Menu = () => {
     const { serverUrl, serverPort } = Config;
     const baseUrl = `${Config.frontBaseUrl}/admin`;
+    const { logout } = useAuth();
     const navigate = useNavigate();
 
     const handleLogout = () => {
         // Perform any logout logic here (e.g., clearing tokens, etc.)
+        logout();
         navigate('/login');
     };
 
     return (
         <div className="container">
             <div className="container-fluid">
-            <h1 className="title-rounded">Valkyrie</h1>
-            <div className="container-fluid"></div>
-            <h2 className="title-rounded">Admin Menu</h2>
+                <h1 className="title-rounded">Valkyrie</h1>
+                <div className="container-fluid"></div>
+                <h2 className="title-rounded">Admin Menu</h2>
             </div>
             <br />
             <div className="btn-group-horizontal" role="group" aria-label="Admin Menu">

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../index.css'; // Ensure this line is present to import the styles
 
@@ -8,10 +9,12 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleLogin = (e) => {
         e.preventDefault();
         if (username === 'admin' && password === 'admin') {
+            login();
             navigate('/admin');
         } else {
             setError('Invalid username or password');
