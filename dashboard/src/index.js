@@ -2,8 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import App from './App';
-
 import { AuthProvider } from './AuthContext';
+import ProtectedRoute from './ProtectedRoute';
 
 import Admin from './admin/Admin';
 import Measurements from './admin/Measurements';
@@ -21,12 +21,12 @@ root.render(
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/measurements" element={<Measurements />} />
-          <Route path="/admin/datasources" element={<Datasources />} />
-          <Route path="/admin/filters" element={<Filters />} />
-          <Route path="/admin/charts" element={<Charts />} />
-          <Route path="/admin/dashboards" element={<Dashboards />} />
+          <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+          <Route path="/admin/measurements" element={<ProtectedRoute><Measurements /></ProtectedRoute>} />
+          <Route path="/admin/datasources" element={<ProtectedRoute><Datasources /></ProtectedRoute>} />
+          <Route path="/admin/filters" element={<ProtectedRoute><Filters /></ProtectedRoute>} />
+          <Route path="/admin/charts" element={<ProtectedRoute><Charts /></ProtectedRoute>} />
+          <Route path="/admin/dashboards" element={<ProtectedRoute><Dashboards /></ProtectedRoute>} />
           <Route path="*" element={<App />} />
         </Routes>
       </Router>

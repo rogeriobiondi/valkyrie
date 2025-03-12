@@ -31,23 +31,23 @@ const Menu = () => {
             </div>
             <br />
             <div className="btn-group-horizontal" role="group" aria-label="Admin Menu">
-                <Link to={`${baseUrl}/measurements#`} className="btn btn-primary btn-square">
+                <Link to={`${baseUrl}/measurements`} className="btn btn-primary btn-square">
                     <i className="glyphicon glyphicon-stats"></i>
                     <span>Measurements</span>
                 </Link>
-                <Link to={`${baseUrl}/datasources#`} className="btn btn-primary btn-square">
+                <Link to={`${baseUrl}/datasources`} className="btn btn-primary btn-square">
                     <i className="glyphicon glyphicon-hdd"></i>
                     <span>Datasources</span>
                 </Link>
-                <Link to={`${baseUrl}/filters#`} className="btn btn-primary btn-square">
+                <Link to={`${baseUrl}/filters`} className="btn btn-primary btn-square">
                     <i className="glyphicon glyphicon-filter"></i>
                     <span>Filters</span>
                 </Link>
-                <Link to={`${baseUrl}/charts#`} className="btn btn-primary btn-square">
+                <Link to={`${baseUrl}/charts`} className="btn btn-primary btn-square">
                     <i className="glyphicon glyphicon-signal"></i>
                     <span>Charts</span>
                 </Link>
-                <Link to={`${baseUrl}/dashboards#`} className="btn btn-primary btn-square">
+                <Link to={`${baseUrl}/dashboards`} className="btn btn-primary btn-square">
                     <i className="glyphicon glyphicon-dashboard"></i>
                     <span>Dashboards</span>
                 </Link>

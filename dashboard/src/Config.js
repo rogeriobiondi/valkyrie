@@ -13,7 +13,9 @@ const Config = {
     serverUrl: process.env.REACT_APP_SERVER_URL || 'http://localhost',
     serverPort: process.env.REACT_APP_SERVER_PORT || 8000,
     frontUrl: process.env.REACT_APP_SERVER_URL || 'http://localhost',
-    frontPort: process.env.REACT_APP_SERVER_PORT || 3000
+    frontPort: process.env.REACT_APP_SERVER_PORT || 3000,
+    adminUser: process.env.REACT_APP_ADMIN_USER || 'admin',
+    adminPass: process.env.REACT_APP_ADMIN_PASS || 'pass'
 };
 
 Config.serverBaseUrl = `${Config.serverUrl}:${Config.serverPort}`;

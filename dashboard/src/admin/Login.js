@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../index.css'; // Ensure this line is present to import the styles
+import '../index.css';
+
+import Config from '../Config';
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -13,7 +15,7 @@ const Login = () => {
 
     const handleLogin = (e) => {
         e.preventDefault();
-        if (username === 'admin' && password === 'admin') {
+        if (username === Config.adminUser && password === Config.adminPass) {
             login();
             navigate('/admin');
         } else {
