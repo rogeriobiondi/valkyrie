@@ -24,6 +24,17 @@ async def post_chart(o: Chart):
             session.commit()
             return o
 
+@router.put("/charts/{name}")
+async def put_chart(name: str, o: Chart):
+    with SessionLocal() as session:
+        if name != o.name:
+            raise HTTPException(status_code=400, detail="Name in URL does not match name in body")
+        update_stmt = chart.update().where(chart.columns.name == o.name).values(datasource=o.datasource, categories=o.categories, config=o.config)
+        session.execute(update_stmt)
+        session.commit()
+        return o
+
+
 @router.get("/charts/{name}")
 async def get_chart(name: str):
     with SessionLocal() as session:

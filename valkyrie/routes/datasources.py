@@ -13,20 +13,45 @@ router = APIRouter()
 @router.post("/datasources")
 async def create_datasource(ds: DataSource, request: Request):
     logging.debug(ds)
-    dados = await pivot_data(query=ds.query, request=request)
-    if dados:
-        with SessionLocal() as session:        
-            ds_exists = session.query(datasource).filter(datasource.columns.name == ds.name).one_or_none()
-            if ds_exists != None:
-                update_stmt = datasource.update().where(datasource.columns.name == ds.name).values(query=ds.query.dict())
-                session.execute(update_stmt)
-                session.commit()            
-                return dados
-            else:
-                insert_stmt = insert(datasource).values(name=ds.name, query=ds.query.dict())
-                session.execute(insert_stmt)
-                session.commit()
-                return dados
+    with SessionLocal() as session:        
+        ds_exists = session.query(datasource).filter(datasource.columns.name == ds.name).one_or_none()
+        if ds_exists != None:
+            update_stmt = datasource.update().where(datasource.columns.name == ds.name).values(query=ds.query.dict())
+            session.execute(update_stmt)
+            session.commit()            
+        else:
+            insert_stmt = insert(datasource).values(name=ds.name, query=ds.query.dict())
+            session.execute(insert_stmt)
+            session.commit()
+    try:
+        dados = await pivot_data(query=ds.query, request=request)
+        if dados:
+            return dados
+        else:
+            return []
+    # if the error is a HTTPException(status_code = 404, detail = "No data found")
+    # then it's not an error because the datasource may be still empty
+    except HTTPException as e:
+        if e.status_code == 404:
+            return []
+        else:
+            logging.error(e)
+            return { "error": e }
+    except Exception as e:
+        logging.error(e)
+        logging.error(e)
+
+@router.put("/datasources/{name}")
+async def update_datasource(name: str, ds: DataSource):
+    with SessionLocal() as session:
+        ds_exists = session.query(datasource).filter(datasource.columns.name == name).one_or_none()
+        if ds_exists != None:
+            update_stmt = datasource.update().where(datasource.columns.name == name).values(query=ds.query.model_dump())
+            session.execute(update_stmt)
+            session.commit()
+            return {"result": "success"}
+        else:
+            raise HTTPException(status_code=404, detail=f"Datasource '{name}' not found")
 
 @router.get("/datasources")
 async def get_datasources():

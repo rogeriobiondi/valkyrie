@@ -1,11 +1,13 @@
-import Config from "./Config";
+import Config from "./admin/Admin";
 import DashBoard from "./Dashboard";
 import React from "react";
+
 import "./styles/App.css";
 
 const App = () => {
   const path = window.location.pathname;
   const dashboardName = path.substring(path.lastIndexOf('/') + 1);
+  console.log("dashboardName", dashboardName);
   if (dashboardName === "") {
     const address = window.location.hostname;
     const port = window.location.port;

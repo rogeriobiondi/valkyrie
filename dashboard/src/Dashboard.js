@@ -3,7 +3,7 @@ import Chart from "./Chart";
 import Filter from './Filter';
 
 import axios from 'axios';
-
+import Config from './Config';
 
 import './Dashboard.css';
 
@@ -18,7 +18,7 @@ const Dashboard = ({name, config}) => {
     });       
     
     useEffect(() => {
-        const url = config.serverUrl + "/dashboards/";
+        const url = Config.serverBaseUrl + "/dashboards/";
         setLoading(true);
         let calc_url = url + name;
         axios.get(calc_url)
@@ -35,7 +35,7 @@ const Dashboard = ({name, config}) => {
                 setError(error.message);
             }
         });
-    }, [name]);
+    }, [name, Config.serverBaseUrl]);
 
     if (loading) {
         return <div>Loading...</div>;
@@ -46,13 +46,17 @@ const Dashboard = ({name, config}) => {
     }
 
     return (
-        <div>
+        <div className='container-fluid'>
             <h1 className="title">{(dashboard.config.title) ? (dashboard.config.title) : ("dashboard.config.title")}</h1>
-            <div>
+            <div className='container-fluid'>
                 <Filter dashboard={dashboard} config={config}>                    
                     {
                         dashboard.config.charts.map((chart, i) => {
-                            return (<Chart key={i} name={chart} config={config}/>);
+                            return (
+                                <div key={i} className="chart-container">
+                                    <Chart name={chart} config={config}/>
+                                </div>
+                            );
                         })
                     }                    
                 </Filter>

@@ -31,6 +31,23 @@ async def create_dashboard(o: Dashboard):
             session.commit()
             return o
 
+@router.put("/dashboards/{name}")
+async def update_dashboard(name: str, o: Dashboard):
+    with SessionLocal() as session:
+        if name != o.name:
+            raise HTTPException(status_code=400, detail="Name in URL does not match name in body")
+        exists = session.query(dashboard).filter(dashboard.columns.name == name).one_or_none()
+        if exists != None:
+            update_stmt = dashboard.update().where(dashboard.columns.name == name).values(config=o.config.dict())
+            session.execute(update_stmt)
+            session.commit()
+            return o
+        else:
+            insert_stmt = insert(dashboard).values(name=name, config=o.config.dict())
+            session.execute(insert_stmt)
+            session.commit()
+            return o
+
 @router.get("/dashboards")
 async def get_dashboards():
     with SessionLocal() as session:
