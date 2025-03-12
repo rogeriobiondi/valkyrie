@@ -5,7 +5,7 @@ import Filter from './Filter';
 import axios from 'axios';
 import Config from './Config';
 
-import './Dashboard.css';
+import './styles/Dashboard.css';
 
 const Dashboard = ({name, config}) => {  
     const [loading, setLoading] = useState(false);
@@ -48,6 +48,8 @@ const Dashboard = ({name, config}) => {
     return (
         <div className='container-fluid'>
             <h1 className="title">{(dashboard.config.title) ? (dashboard.config.title) : ("dashboard.config.title")}</h1>
+            <div className="rounded p-2">Powered by Valkyrie</div>
+            <br/>
             <div className='container-fluid'>
                 <Filter dashboard={dashboard} config={config}>                    
                     {
