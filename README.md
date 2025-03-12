@@ -452,6 +452,23 @@ Voilà!
 ![Dashboard](docs/images/valkyrie.png)
 
 
+## Valkyrie Admin (experimental)
+
+You can also use the Valkyrie Admin to edit your objects. Access the following address to Log in to it:
+
+http://localhost:3000/admin
+
+The default user and password is `admin` and `pass`. It can be changed in the .env or environment variables `REACT_APP_ADMIN_USER` and `REACT_APP_ADMIN_PASS`.
+
+![Login Screen](docs/images/login.png)
+
+![Menu Screen](docs/images/menu.png)
+
+![Measurement Screen](docs/images/measurements.png)
+
+![Measurement Detail Screen](docs/images/measurement.png)
+
+
 ## Running Tests
 
 You should have the server component running to run the unit tests.
