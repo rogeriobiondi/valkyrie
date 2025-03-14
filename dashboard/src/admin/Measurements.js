@@ -155,9 +155,9 @@ const Measurements = () => {
                 <ul className="list-group container-fluid">
                     {measurements.map((measurement, index) => (
                         <li key={index} className={`list-group-item d-flex justify-content-between align-items-center ${index % 2 === 0 ? 'bg-light' : ''}`}>
-                            <a href="#" onClick={() => { measurement.id = measurement.name; setSelectedMeasurement(measurement); setShowMeasurementPopup(true); }}>
+                            <button className="btn btn-link" onClick={() => { measurement.id = measurement.name; setSelectedMeasurement(measurement); setShowMeasurementPopup(true); }}>
                                 {measurement.name}
-                            </a>
+                            </button>
                             <button className="btn btn-danger btn-sm btn-function-square" onClick={() => handleDelete(measurement.name)}>-</button>
                         </li>
                     ))}
@@ -186,6 +186,8 @@ const Measurements = () => {
                     editField={editField}
                     tempDimension={tempDimension}
                     tempField={tempField}
+                    setEditDimension={setEditDimension} // Pass the setter function
+                    setEditField={setEditField} // Pass the setter function
                 />
             )}
         </div>
@@ -212,7 +214,9 @@ const MeasurementPopup = ({
     editDimension,
     editField,
     tempDimension,
-    tempField
+    tempField,
+    setEditDimension, // Receive the setter function
+    setEditField // Receive the setter function
 }) => {
     return (
         <div className="modal show d-block">
@@ -245,9 +249,9 @@ const MeasurementPopup = ({
                         <ul className="list-group mb-4">
                             {measurement.dimensions.map((dimension, index) => (
                                 <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-                                    <a href="#" onClick={() => { setShowDimensionPopup(true); }}>
+                                    <button className="btn btn-link" onClick={() => { setEditDimension(index); setShowDimensionPopup(true); }}>
                                         {dimension.name}
-                                    </a>
+                                    </button>
                                     <button className="btn btn-danger btn-sm btn-function-square" onClick={() => removeDimension(index)}>-</button>
                                 </li>
                             ))}
@@ -257,9 +261,9 @@ const MeasurementPopup = ({
                         <ul className="list-group mb-4">
                             {measurement.fields.map((field, index) => (
                                 <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-                                    <a href="#" onClick={() => { setShowFieldPopup(true); }}>
+                                    <button className="btn btn-link" onClick={() => { setEditField(index); setShowFieldPopup(true); }}>
                                         {field.name}
-                                    </a>
+                                    </button>
                                     <button className="btn btn-danger btn-sm btn-function-square" onClick={() => removeField(index)}>-</button>
                                 </li>
                             ))}
