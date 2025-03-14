@@ -11,7 +11,6 @@ import '../styles/index.css';
  * @returns {Object} The configuration object.
  */
 const Menu = () => {
-    const { serverUrl, serverPort } = Config;
     const baseUrl = `${Config.frontBaseUrl}/admin`;
     const { logout } = useAuth();
     const navigate = useNavigate();
