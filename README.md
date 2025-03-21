@@ -1,5 +1,7 @@
 ## About Valkyrie
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/2ca79b63-65c9-4ef2-9169-8df9ee33655a/deploy-status)](https://app.netlify.com/sites/valkyr/deploys)
+
 Valkyrie is a prototype for a product designed to enable users to create dashboards quickly and declaratively.
 This project aims to simplify the process of dashboard creation by providing an intuitive and efficient way to define and customize dashboards without extensive coding knowledge.
 
